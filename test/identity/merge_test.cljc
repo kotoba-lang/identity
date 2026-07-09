@@ -31,3 +31,31 @@
   (let [out (merge/merge-by-policy [(m/subject "did:web:example.com:alice" :person {})
                                     (m/subject "did:web:example.com:bob" :person {})])]
     (is (= 2 (count out)))))
+
+(deftest merge-subjects-preserves-pre-existing-aliases
+  (let [a (m/subject "did:web:example.com:alice" :person
+                     {:did "did:web:example.com:alice"
+                      :aliases ["legacy:alice-import-2019"]})
+        b (m/subject "account:alice" :person
+                     {:did "did:web:example.com:alice"})
+        out (merge/merge-subjects [a b])]
+    (is (= #{"account:alice" "legacy:alice-import-2019"}
+           (set (:identity.subject/aliases out)))
+        "regression: aliases was rebuilt purely from THIS round's subject
+         ids, discarding any alias a subject already carried from an
+         earlier merge round or an external identity source -- a subject
+         later presenting the pre-existing alias could no longer be
+         recognized as the same identity")
+    (let [c (m/subject "legacy:alice-import-2019" :person {})]
+      (is (merge/same-subject? out c)
+          "the previously-linked alias must still resolve to the merged subject"))))
+
+(deftest merge-subjects-cascading-merge-unions-all-aliases-no-duplicates
+  (let [a (m/subject "id-a" :person {})
+        b (m/subject "id-b" :person {})
+        first-merge (merge/merge-subjects [a b])
+        c (m/subject "id-c" :person {:aliases ["c-legacy"]})
+        second-merge (merge/merge-subjects [first-merge c])
+        aliases (:identity.subject/aliases second-merge)]
+    (is (= #{"id-b" "id-c" "c-legacy"} (set aliases)))
+    (is (= (count aliases) (count (distinct aliases))) "no duplicate aliases")))
