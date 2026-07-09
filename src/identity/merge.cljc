@@ -23,7 +23,15 @@
          (assoc :identity.subject/id canonical
                 :identity.subject/labels labels
                 :identity.subject/source (first sources)
-                :identity.subject/aliases (vec (distinct (remove #{canonical} ids)))
+                ;; union of this round's subject ids AND every subject's
+                ;; own pre-existing :identity.subject/aliases -- a bare
+                ;; `ids` here discarded any alias a subject already carried
+                ;; (e.g. from an earlier merge round, or imported from an
+                ;; external identity source), silently breaking
+                ;; same-subject? for anyone still presenting that alias.
+                :identity.subject/aliases
+                (vec (distinct (remove #{canonical}
+                                       (concat ids (mapcat :identity.subject/aliases subjects)))))
                 :identity.subject/conflict? conflict?)))))
 
 (defn merge-by-policy
