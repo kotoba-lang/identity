@@ -1,7 +1,10 @@
 (ns identity.model)
 
-(def subject-types #{:person :organization :device :account :wallet :ip-address})
-(def evidence-kinds #{:document :liveness :biometric-attestation :screening :credential :external-ref})
+(def subject-types #{:person :organization :device :account :wallet :ip-address :agent})
+(def evidence-kinds
+  #{:document :liveness :biometric-attestation :screening :credential :external-ref
+    :onchain-attestation :humanity-proof
+    :agent-registration :agent-feedback :agent-validation})
 
 (defn subject [id type opts]
   {:identity.subject/id id

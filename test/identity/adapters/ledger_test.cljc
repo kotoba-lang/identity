@@ -1,5 +1,6 @@
 (ns identity.adapters.ledger-test
   (:require [clojure.test :refer [deftest is]]
+            [identity.causal :as causal]
             [identity.adapters.ledger :as a]
             [identity.model :as m]))
 
@@ -17,3 +18,35 @@
     (a/persist-attestation! ledger attestation {})
     (is (= ["did:web:example.com:alice" "e1" "a1"]
            (mapv #(-> % first first :db/id) @txs)))))
+
+(deftest persists-a-verified-trust-bundle-in-one-transaction
+  (let [txs (atom [])
+        ledger (reify a/ILedger
+                 (transact! [_ datoms opts]
+                   (swap! txs conj [datoms opts])
+                   {:tx/id "trust-tx"}))
+        subject (m/subject "agent:7" :agent {})
+        evidence [(m/evidence-ref "e1" :agent-registration {})
+                  (m/evidence-ref "e2" :agent-validation {})]
+        attestations [(m/attestation "a1" "agent:7" :erc8004/registered
+                                     {:evidence ["e1"]})]
+        claims [(causal/trust-claim
+                 "c1" "agent:7" :erc8004/validation-qualified
+                 {:scope [:agent :validation]
+                  :issuer "registry"
+                  :evaluator {:evaluator/id "validator-set"
+                              :evaluator/kind :institution}
+                  :evidence ["e2"]
+                  :policy-cid "bafy-policy"
+                  :confidence 1.0
+                  :issued-at "2026-08-27T00:00:00Z"})]]
+    (is (= {:tx/id "trust-tx"}
+           (a/persist-trust-bundle!
+            ledger {:identity/subject subject
+                    :identity/evidence evidence
+                    :identity/attestations attestations
+                    :identity/trust-claims claims}
+            {:case-ref "trust-1"})))
+    (is (= 1 (count @txs)))
+    (is (= ["agent:7" "e1" "e2" "a1" "c1"]
+           (mapv :db/id (ffirst @txs))))))
