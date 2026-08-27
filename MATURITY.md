@@ -18,6 +18,18 @@ Implemented:
 - Atomic transition persistence: the successor epoch starts at trust zero only
   when every open obligation is carried and every prior active grant is named
   for revocation.
+- Fail-closed EAS verification with explicit chain/contract coordinates,
+  schema and attester allowlists, revocation, expiration, and time checks.
+- Human Passport current-schema normalization into a 90-day scoped
+  Sybil-resistance claim and Sekisho evidence, without importing its score as a
+  general trust score.
+- Current draft ERC-8004 three-registry registration, reputation, and
+  validation normalization with mandatory client/validator allowlists.
+- Atomic persistence of externally verified trust bundles.
 
 Not yet R2:
-- None.
+- Live RPC/ABI/document-fetch implementations for the new external adapters.
+  Those remain host responsibilities; this repo currently proves the portable
+  reader/decoder contracts and fail-closed policy behavior.
+- Current live state of the historical Etzhayyim private chain is unverified;
+  its old monolithic contract is explicitly outside current ERC-8004 support.

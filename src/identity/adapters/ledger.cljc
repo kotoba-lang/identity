@@ -22,6 +22,23 @@
   (causal/valid! record)
   (transact! ledger (d/causal-datoms record) opts))
 
+(defn persist-trust-bundle!
+  "Validate and persist one externally verified trust bundle atomically.
+
+  Adapter IO and decoding happen before this boundary.  A malformed member
+  rejects the entire transaction; no partial subject or trust claim lands."
+  [ledger {:identity/keys [subject evidence attestations trust-claims]} opts]
+  (v/valid! subject)
+  (doseq [record evidence] (v/valid! record))
+  (doseq [record attestations] (v/valid! record))
+  (doseq [record trust-claims] (causal/valid! record))
+  (transact! ledger
+             (vec (concat (d/subject-datoms subject)
+                          (mapcat d/evidence-datoms evidence)
+                          (mapcat d/attestation-datoms attestations)
+                          (mapcat d/causal-datoms trust-claims)))
+             opts))
+
 (defn persist-transition!
   "Persist the transition and new epoch atomically after basis validation."
   [ledger transition new-epoch basis opts]
