@@ -13,6 +13,11 @@ Implemented:
 - Verifiable Credential verifier boundary with evidence and attestation binding.
 - Cross-source subject merge policy with aliases and conflict markers.
 - Contract tests for subject shape, invalid records, attestation datoms, DID resolution, VC binding, merge policy, ledger payloads, and durable transaction reload.
+- Causal identity epochs, attributed identifier-link claims, scoped evaluator
+  trust claims, inheritable obligations, and basis-bound epoch transitions.
+- Atomic transition persistence: the successor epoch starts at trust zero only
+  when every open obligation is carried and every prior active grant is named
+  for revocation.
 
 Not yet R2:
 - None.

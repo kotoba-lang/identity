@@ -1,5 +1,6 @@
 (ns identity.adapters.ledger
-  (:require [identity.datom :as d]
+  (:require [identity.causal :as causal]
+            [identity.datom :as d]
             [identity.validate :as v]))
 
 (defprotocol ILedger
@@ -16,3 +17,17 @@
 (defn persist-attestation! [ledger attestation opts]
   (v/valid! attestation)
   (transact! ledger (d/attestation-datoms attestation) opts))
+
+(defn persist-causal! [ledger record opts]
+  (causal/valid! record)
+  (transact! ledger (d/causal-datoms record) opts))
+
+(defn persist-transition!
+  "Persist the transition and new epoch atomically after basis validation."
+  [ledger transition new-epoch basis opts]
+  (let [{:identity.causal/keys [transition new-epoch]}
+        (causal/validate-transition! transition new-epoch basis)]
+    (transact! ledger
+               (into (d/causal-datoms transition)
+                     (d/causal-datoms new-epoch))
+               opts)))

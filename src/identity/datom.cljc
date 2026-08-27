@@ -27,3 +27,13 @@
     :identity.attestation/evidence (:identity.attestation/evidence a)
     :identity.attestation/issued-at (:identity.attestation/issued-at a)
     :identity/non-adjudicating (:identity/non-adjudicating a)}])
+
+(defn causal-datoms
+  "Project one validated causal identity record without erasing attribution."
+  [record]
+  [(assoc record :db/id
+          (or (:identity.epoch/id record)
+              (:identity.link/id record)
+              (:trust.claim/id record)
+              (:identity.obligation/id record)
+              (:identity.transition/id record)))])
