@@ -26,10 +26,16 @@ Implemented:
 - Current draft ERC-8004 three-registry registration, reputation, and
   validation normalization with mandatory client/validator allowlists.
 - Atomic persistence of externally verified trust bundles.
+- Reference JVM JSON-RPC/ABI host for read-only EAS and Human Passport reads,
+  with HTTPS RPC pinning, chain-ID verification, bounded responses, strict ABI
+  bounds checks, and an Optimism live proof against the official schema.
+- Coordinate-driven JVM ERC-8004 reader for Identity, Reputation, and Validation
+  registry calls plus bounded HTTPS, IPFS-gateway, and base64 data registration
+  documents.
 
 Not yet R2:
-- Live RPC/ABI/document-fetch implementations for the new external adapters.
-  Those remain host responsibilities; this repo currently proves the portable
-  reader/decoder contracts and fail-closed policy behavior.
+- ERC-8004 live activation. The draft does not publish canonical registry
+  addresses, so a deployment coordinate must be selected explicitly before the
+  implemented reader can be bound to a live chain.
 - Current live state of the historical Etzhayyim private chain is unverified;
   its old monolithic contract is explicitly outside current ERC-8004 support.
