@@ -5,6 +5,29 @@ Portable EDN model for identity subjects, attestations, and evidence references.
 This repo is the shared substrate for identity-facing kotoba-lang libraries. It
 does not verify documents, run biometrics, or score compliance risk.
 
+## Passkey-first, chain-neutral principals
+
+`identity.principal` separates the stable subject from every mechanism that
+controls or addresses it:
+
+- the principal is a DID or `urn:kotoba:principal:*` logical subject;
+- a verified WebAuthn P-256 passkey is a replaceable controller;
+- a smart account is a CAIP-10 linked account, not the subject itself;
+- ERC-4337 accounts declare ERC-1271 verification and ERC-6492 when they are
+  counterfactual; and
+- an HD/EOA wallet may be linked for payment or custody, but is never the
+  default identity root.
+
+No chain is selected implicitly. Base appears only when a caller explicitly
+links an `eip155:8453:*` account; Ethereum, another EVM chain, or a non-EVM
+native account can be linked without changing the principal. The namespace is
+pure data and validation: WebAuthn ceremony verification, chain signature
+checks, persistence and capability admission stay in their existing owners.
+
+A pending credential or account description is not proof. Only verifier-backed
+`:verified` controllers can control a structurally valid document, and even
+that fresh authentication does not grant a Kotoba capability.
+
 ## External trust adapters
 
 `identity.adapters.eas` verifies host-decoded Ethereum Attestation Service
