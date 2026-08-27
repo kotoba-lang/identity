@@ -2,17 +2,17 @@
   "Read-only Optimism proof for the official Human Passport EAS schema."
   (:require [identity.adapters.eas :as eas]
             [identity.adapters.evm :as evm]
-            [identity.adapters.human-passport :as passport]))
+            [identity.adapters.human-passport :as passport]
+            [identity.trust-profile :as trust-profile]))
 
 (def optimism
-  {:namespace "eip155"
-   :chain-id 10
-   :eas-address "0x4200000000000000000000000000000000000021"
-   :schema-registry-address "0x4200000000000000000000000000000000000020"})
+  {:namespace (:namespace trust-profile/human-passport-coordinate)
+   :chain-id (:chainId trust-profile/human-passport-coordinate)
+   :eas-address (:easAddress trust-profile/human-passport-coordinate)
+   :schema-registry-address (:schemaRegistryAddress trust-profile/human-passport-coordinate)})
 
-(def official-schema
-  "0xda0257756063c891659fed52fd36ef7557f7b45d66f59645fd3c3b263b747254")
-(def official-attester "0x843829986e895facd330486a61Ebee9E1f1adB1a")
+(def official-schema trust-profile/human-passport-schema-uid)
+(def official-attester trust-profile/human-passport-attester)
 (def sample-attestation
   "0xb6612e9191aaf5741420f4933a509c60f558b6fd2ee769befe3cc07805690a68")
 
