@@ -34,6 +34,9 @@
   (boolean (and (string? x) (= 42 (count x)) (str/starts-with? x "0x")
                 (re-matches #"[0-9a-fA-F]+" (subs x 2)))))
 
+(defn- same-address? [a b]
+  (and (string? a) (string? b) (= (str/lower-case a) (str/lower-case b))))
+
 (defn- fail! [code details]
   (throw (ex-info "ERC-8004 record rejected"
                   (assoc details :identity.erc8004/problem code))))
@@ -58,8 +61,9 @@
 
 (defn- registration-entry? [coordinate agent-id entry]
   (and (= agent-id (:agent-id entry))
-       (= (str "eip155:" (:chain-id coordinate) ":" (:identity-registry coordinate))
-          (:agent-registry entry))))
+       (= (str/lower-case
+           (str "eip155:" (:chain-id coordinate) ":" (:identity-registry coordinate)))
+          (some-> (:agent-registry entry) str/lower-case))))
 
 (defn- registration! [coordinate agent-id registration]
   (when-not (map? registration)
@@ -123,9 +127,11 @@
     (fail! :agent/id {:agent-id agent-id}))
   (let [{:keys [reputation-identity-registry validation-identity-registry] :as bindings}
         (read-registry-bindings! reader coordinate)]
-    (when-not (= (:identity-registry coordinate) reputation-identity-registry)
+    (when-not (same-address? (:identity-registry coordinate)
+                             reputation-identity-registry)
       (fail! :registry/reputation-identity-binding {:bindings bindings}))
-    (when-not (= (:identity-registry coordinate) validation-identity-registry)
+    (when-not (same-address? (:identity-registry coordinate)
+                             validation-identity-registry)
       (fail! :registry/validation-identity-binding {:bindings bindings})))
   (let [{:keys [owner agent-uri registration agent-wallet wallet-verified?] :as chain-agent}
         (read-agent! reader coordinate agent-id)]

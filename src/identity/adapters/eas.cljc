@@ -29,6 +29,12 @@
   (throw (ex-info "EAS attestation rejected"
                   (assoc details :identity.eas/problem code))))
 
+(defn- canonical-hex [x]
+  (if (string? x) (str/lower-case x) x))
+
+(defn- allowed-hex? [allowlist value]
+  (contains? (set (map canonical-hex allowlist)) (canonical-hex value)))
+
 (defn- coordinate! [{:keys [namespace chain-id eas-address schema-registry-address]
                      :as coordinate}]
   (when-not (= "eip155" namespace)
@@ -61,12 +67,12 @@
   (let [record (read-attestation! reader coordinate attestation-uid)]
     (when-not (map? record)
       (fail! :attestation/not-found {:uid attestation-uid}))
-    (when-not (= attestation-uid (:uid record))
+    (when-not (= (canonical-hex attestation-uid) (canonical-hex (:uid record)))
       (fail! :attestation/uid-mismatch {:requested attestation-uid
                                         :returned (:uid record)}))
-    (when-not (contains? allowed-schema-uids (:schema-uid record))
+    (when-not (allowed-hex? allowed-schema-uids (:schema-uid record))
       (fail! :attestation/schema-not-allowed {:schema-uid (:schema-uid record)}))
-    (when-not (contains? allowed-attesters (:attester record))
+    (when-not (allowed-hex? allowed-attesters (:attester record))
       (fail! :attestation/attester-not-allowed {:attester (:attester record)}))
     (when-not (and (integer? (:time record)) (<= 0 (:time record) now))
       (fail! :attestation/time {:time (:time record) :now now}))
@@ -85,7 +91,8 @@
     (let [schema (read-schema! reader coordinate (:schema-uid record))]
       (when-not (map? schema)
         (fail! :schema/not-found {:schema-uid (:schema-uid record)}))
-      (when-not (= (:schema-uid record) (:uid schema))
+      (when-not (= (canonical-hex (:schema-uid record))
+                   (canonical-hex (:uid schema)))
         (fail! :schema/uid-mismatch {:record (:schema-uid record)
                                      :schema (:uid schema)}))
       (when-not (contains? #{true false} (:revocable? schema))

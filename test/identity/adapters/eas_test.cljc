@@ -1,5 +1,6 @@
 (ns identity.adapters.eas-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [clojure.string :as str]
+            [clojure.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]))
 
 (def uid (str "0x" (apply str (repeat 64 "1"))))
@@ -31,6 +32,13 @@
     (is (= :onchain-attestation
            (get-in result [:identity.eas/evidence :identity.evidence/kind])))
     (is (= uid (get-in result [:identity.eas/evidence :identity.evidence/ref :uid])))))
+
+(deftest ethereum-hex-allowlists-ignore-checksum-casing
+  (let [checksummed (str "0x" (str/upper-case (subs attester 2)))
+        result (eas/verify! (reader {}) coordinate uid
+                            (assoc policy :allowed-attesters #{checksummed}))]
+    (is (= attester
+           (get-in result [:identity.eas/attestation :attester])))))
 
 (deftest provenance-and-lifecycle-fail-closed
   (testing "an untrusted attester"

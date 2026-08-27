@@ -26,10 +26,20 @@ explicitly allowlisted clients/validators; low results remain structured
 refusals. The historical Etzhayyim monolithic `ERC-8004-shaped` contract is not
 treated as compatible with this adapter.
 
-All three namespaces are pure verification/composition boundaries. Production
-hosts provide pinned RPC, ABI decoding, registration-document retrieval, and
-transport. `identity.adapters.ledger/persist-trust-bundle!` atomically commits a
-fully verified subject, evidence, attestations, and scoped claims.
+All three namespaces are pure verification/composition boundaries.
+`identity.adapters.evm` is the reference JVM host for pinned, read-only EAS and
+Human Passport access: it verifies `eth_chainId`, calls the configured EAS and
+Schema Registry contracts, and strictly decodes their ABI payloads. Run
+`clojure -M:live-human-passport` for the non-mutating Optimism proof. The
+historical official sample is intentionally expected to fail closed as expired.
+
+The same JVM host provides coordinate-driven ERC-8004 registry calls and bounded
+registration-document retrieval for HTTPS, `ipfs://` through an explicitly
+configured gateway, and base64 JSON `data:` URIs. The draft expects per-chain
+singleton deployments but does not define canonical addresses, so no registry
+is selected ambiently. Once coordinates are configured,
+`identity.adapters.ledger/persist-trust-bundle!` atomically commits a fully
+verified subject, evidence, attestations, and scoped claims.
 
 `identity.directory` defines the portable organization directory used by
 cloud-itonami: domain-scoped users and groups, lifecycle status, delegated
