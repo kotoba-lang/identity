@@ -54,4 +54,10 @@
           (str "0x" (word 32) (dynamic-bytes (hex-text "ipfs://agent"))) "uri")))
   (is (= {:count 3 :score 175/2}
          (edge/decode-reputation-summary-result
-          (str "0x" (word 3) (word 875) (word 1))))))
+          (str "0x" (word 3) (word 875) (word 1)))))
+  (testing "the ERC-8004 unset-wallet sentinel never becomes a principal"
+    (is (nil? (edge/normalize-agent-wallet
+               "0x0000000000000000000000000000000000000000")))
+    (is (= "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+           (edge/normalize-agent-wallet
+            "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")))))
