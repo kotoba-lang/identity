@@ -16,7 +16,7 @@ The three products need different evidence:
 | Service role | Evidence use | Current enforcement |
 | --- | --- | --- |
 | Itonami human/organization operator | Human Passport as optional Sybil-resistance step-up | one evidence-only action |
-| Kotobase evidence authority | EAS schema and attester provenance | adapter available, action integration pending |
+| Kotobase evidence authority | EAS schema and attester provenance | active at authenticated `evidence.ingest`; evidence receipt only |
 | Murakumo agent execution | ERC-8004 registration/reputation/validation | registry coordinate ungoverned, no live enforcement |
 
 ## Decision
@@ -36,7 +36,7 @@ Principal's verified EVM account. A successful check stores evidence and a
 policy-bound decision receipt. It grants no capability and cannot authorize
 money movement, tenant approval, agent delegation, or another action.
 
-Kotobase will admit an EAS claim only at a named evidence-ingest boundary with
+Kotobase admits an EAS claim only at the named evidence-ingest boundary with
 a service-owned schema/attester allowlist. Its existing P4/P7 authorization
 remains the capability decision; an attestation is input evidence only.
 
