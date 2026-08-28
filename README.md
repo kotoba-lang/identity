@@ -55,6 +55,11 @@ Human Passport access: it verifies `eth_chainId`, calls the configured EAS and
 Schema Registry contracts, and strictly decodes their ABI payloads. Run
 `clojure -M:live-human-passport` for the non-mutating Optimism proof. The
 historical official sample is intentionally expected to fail closed as expired.
+Pass `--uid <attestation-uid>` (or set
+`HUMAN_PASSPORT_ATTESTATION_UID`) to require a current attestation to pass
+against the exact Itonami policy. On 2026-08-28 the read-only proof accepted
+`0x0c57d851…ffd8f5c`: official schema/attester, scorer 335, score 273090,
+threshold 200000, six stamps, and no chain write.
 
 The same JVM host provides coordinate-driven ERC-8004 registry calls and bounded
 registration-document retrieval for HTTPS, `ipfs://` through an explicitly
@@ -68,8 +73,9 @@ verified subject, evidence, attestations, and scoped claims.
 authorization. It currently activates one exact Itonami action,
 `identity.sybil-step-up`, binds the EAS recipient to the authenticated
 Principal account, and explicitly grants no capability. Kotobase EAS action
-admission and Murakumo ERC-8004 activation remain declared but inactive. The
-decision and remaining boundaries are recorded in
+admission and Murakumo Identity/Reputation admission are active in their
+service repos. Murakumo Validation remains explicitly deferred until an
+official governed deployment exists. The decision and remaining boundaries are recorded in
 `docs/adr/2608281000-external-trust-is-scoped-evidence-not-ambient-authority.md`.
 
 `identity.directory` defines the portable organization directory used by

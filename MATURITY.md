@@ -28,7 +28,8 @@ Implemented:
 - Atomic persistence of externally verified trust bundles.
 - Reference JVM JSON-RPC/ABI host for read-only EAS and Human Passport reads,
   with HTTPS RPC pinning, chain-ID verification, bounded responses, strict ABI
-  bounds checks, and an Optimism live proof against the official schema.
+  bounds checks, and both expired-refusal and fresh-positive Optimism live
+  proofs against the official schema and exact Itonami policy.
 - Coordinate-driven JVM ERC-8004 reader for Identity, Reputation, and Validation
   registry calls plus bounded HTTPS, IPFS-gateway, and base64 data registration
   documents.
@@ -38,10 +39,10 @@ Implemented:
   capability.
 
 Not yet R2:
-- ERC-8004 live activation. The draft does not publish canonical registry
-  addresses, so a deployment coordinate must be selected explicitly before the
-  implemented reader can be bound to a live chain.
+- ERC-8004 Validation activation. The official deployment table publishes Base
+  Identity and Reputation coordinates but no governed Base Validation address.
 - Current live state of the historical Etzhayyim private chain is unverified;
   its old monolithic contract is explicitly outside current ERC-8004 support.
-- Kotobase EAS evidence-ingest enforcement and Murakumo ERC-8004 execution
-  enforcement remain inactive service integrations.
+- Authenticated production-user receipts remain separate service evidence:
+  this repo proves the fresh public attestation read without impersonating an
+  Itonami Principal or writing a Kotobase tenant receipt.
