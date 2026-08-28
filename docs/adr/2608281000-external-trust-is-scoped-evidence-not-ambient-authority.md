@@ -40,6 +40,12 @@ Kotobase will admit an EAS claim only at a named evidence-ingest boundary with
 a service-owned schema/attester allowlist. Its existing P4/P7 authorization
 remains the capability decision; an attestation is input evidence only.
 
+JavaScript edge hosts use `identity.adapters.evm-edge` for that boundary. The
+edge reader checks `eth_chainId` before each `eth_call`, bounds JSON-RPC
+responses, strictly decodes the EAS record and schema tuples, and only then
+hands decoded values to `identity.adapters.eas/verify!`. Caller-supplied decoded
+attestations are never accepted as chain evidence.
+
 Murakumo will not activate ERC-8004 until governance selects a chain and the
 Identity, Reputation and Validation registry coordinates and pins their code.
 Registration, reputation and validation remain separate inputs. None alone
