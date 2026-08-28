@@ -45,3 +45,13 @@
              nil
              (catch clojure.lang.ExceptionInfo e
                (:identity.evm-edge/problem (ex-data e))))))))
+
+(deftest decodes-edge-erc8004-results
+  (is (= "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+         (edge/decode-address-result (str "0x" (address-word "a")) "owner")))
+  (is (= "ipfs://agent"
+         (edge/decode-string-result
+          (str "0x" (word 32) (dynamic-bytes (hex-text "ipfs://agent"))) "uri")))
+  (is (= {:count 3 :score 175/2}
+         (edge/decode-reputation-summary-result
+          (str "0x" (word 3) (word 875) (word 1))))))

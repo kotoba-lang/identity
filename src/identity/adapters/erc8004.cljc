@@ -48,9 +48,10 @@
     (fail! :coordinate/namespace {:coordinate coordinate}))
   (when-not (pos-int? chain-id)
     (fail! :coordinate/chain-id {:coordinate coordinate}))
-  (doseq [[kind address] [[:identity identity-registry]
-                          [:reputation reputation-registry]
-                          [:validation validation-registry]]]
+  (doseq [[kind address] (cond-> [[:identity identity-registry]
+                                  [:reputation reputation-registry]]
+                           (some? validation-registry)
+                           (conj [:validation validation-registry]))]
     (when-not (hex-address? address)
       (fail! :coordinate/registry-address {:registry kind :address address})))
   coordinate)
@@ -130,9 +131,11 @@
     (when-not (same-address? (:identity-registry coordinate)
                              reputation-identity-registry)
       (fail! :registry/reputation-identity-binding {:bindings bindings}))
-    (when-not (same-address? (:identity-registry coordinate)
-                             validation-identity-registry)
-      (fail! :registry/validation-identity-binding {:bindings bindings})))
+    (when (:validation policy)
+      (when-not (and (:validation-registry coordinate)
+                     (same-address? (:identity-registry coordinate)
+                                    validation-identity-registry))
+        (fail! :registry/validation-identity-binding {:bindings bindings}))))
   (let [{:keys [owner agent-uri registration agent-wallet wallet-verified?] :as chain-agent}
         (read-agent! reader coordinate agent-id)]
     (when-not (map? chain-agent)

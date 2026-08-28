@@ -5,13 +5,20 @@
   only supplies bounded JSON-RPC transport and strict ABI decoding for hosts
   such as Cloudflare Workers."
   (:require [clojure.string :as str]
-            [identity.adapters.eas :as eas])
+            [identity.adapters.eas :as eas]
+            [identity.adapters.erc8004 :as erc8004])
   #?(:clj (:import (java.math BigInteger)
                    (java.nio.charset StandardCharsets))))
 
 (def ^:private get-attestation-selector "a3112a64")
 (def ^:private get-schema-selector "a2ea7c6e")
+(def ^:private owner-of-selector "6352211e")
+(def ^:private token-uri-selector "c87b56dd")
+(def ^:private get-agent-wallet-selector "00339509")
+(def ^:private get-identity-registry-selector "bc4d861b")
+(def ^:private reputation-summary-selector "81bbba58")
 (def ^:private max-rpc-text-chars (* 4 1024 1024))
+(def ^:private max-document-text-chars (* 256 1024))
 
 (defn- fail! [code details]
   (throw (ex-info "EVM edge trust reader rejected input"
@@ -90,6 +97,69 @@
                     (clj->js (mapv #(js/parseInt (apply str %) 16)
                                    (partition 2 raw))))]
          (.decode (js/TextDecoder. "utf-8" #js {:fatal true}) bytes)))))
+
+(defn- uint-word [n label]
+  (when-not (and (integer? n) (not (neg? n)))
+    (fail! :abi/uint {:field label :value n}))
+  #?(:clj
+     (let [raw (.toString (BigInteger. (str n)) 16)]
+       (when (> (count raw) 64)
+         (fail! :abi/uint-overflow {:field label :value (str n)}))
+       (str (apply str (repeat (- 64 (count raw)) "0")) raw))
+     :cljs
+     (let [raw (.toString (js/BigInt n) 16)]
+       (when (> (count raw) 64)
+         (fail! :abi/uint-overflow {:field label :value (str n)}))
+       (.padStart raw 64 "0"))))
+
+(defn- address-word [address label]
+  (when-not (and (string? address) (re-matches #"0x[0-9a-fA-F]{40}" address))
+    (fail! :abi/address {:field label :value address}))
+  (str (apply str (repeat 24 "0")) (str/lower-case (subs address 2))))
+
+(defn- address-array-abi [addresses]
+  (str (uint-word (count addresses) "addresses.length")
+       (apply str (map-indexed #(address-word %2 (str "addresses[" %1 "]"))
+                               addresses))))
+
+(defn- single-uint-call-data [selector n]
+  (str "0x" selector (uint-word n "agent-id")))
+
+(defn- reputation-call-data [agent-id clients]
+  (when-not (seq clients) (fail! :erc8004/clients-empty {}))
+  (let [client-data (address-array-abi clients)
+        client-offset (* 4 32)
+        tag1-offset (+ client-offset (quot (count client-data) 2))
+        tag2-offset (+ tag1-offset 32)]
+    (str "0x" reputation-summary-selector
+         (uint-word agent-id "agent-id")
+         (uint-word client-offset "clients.offset")
+         (uint-word tag1-offset "tag1.offset")
+         (uint-word tag2-offset "tag2.offset")
+         client-data (uint-word 0 "tag1.length") (uint-word 0 "tag2.length"))))
+
+(defn decode-address-result [hex label] (address-at hex 0 label))
+(defn decode-string-result [hex label]
+  (utf8-at hex (offset-at hex 0 (str label ".offset")) label))
+
+(defn decode-reputation-summary-result [hex]
+  (let [count (uint-at hex 0 "reputation.count")
+        word (slice-bytes hex 32 32 "reputation.value")
+        decimals (uint-at hex 64 "reputation.decimals")]
+    (when (> decimals 18)
+      (fail! :abi/decimals {:field "reputation.decimals" :value decimals}))
+    #?(:clj
+       (let [raw (BigInteger. word 16)
+             value (if (.testBit raw 255) (.subtract raw (.shiftLeft BigInteger/ONE 256)) raw)]
+         {:count count :score (/ value (.pow BigInteger/TEN decimals))})
+       :cljs
+       (let [raw (js/BigInt (str "0x" word))
+             negative? (>= raw (js/BigInt "0x8000000000000000000000000000000000000000000000000000000000000000"))
+             value (if negative? (- raw (js/BigInt "0x10000000000000000000000000000000000000000000000000000000000000000")) raw)
+             max-safe (js/BigInt js/Number.MAX_SAFE_INTEGER)]
+         (when (or (> value max-safe) (< value (- max-safe)))
+           (fail! :abi/integer-overflow {:field "reputation.value"}))
+         {:count count :score (/ (js/Number value) (js/Math.pow 10 decimals))}))))
 
 (defn decode-eas-attestation-result
   "Decode EAS getAttestation(bytes32), rejecting malformed offsets and words."
@@ -193,3 +263,107 @@
                                 {:allowed-schema-uids allowed-schema-uids
                                  :allowed-attesters allowed-attesters
                                  :now now}))))))))))))
+
+#?(:cljs
+   (do
+     (defn- registration-map [text]
+       (let [raw (try (js->clj (js/JSON.parse text) :keywordize-keys true)
+                      (catch :default _ (fail! :document/json {})))]
+         {:type (:type raw)
+          :name (:name raw)
+          :description (:description raw)
+          :image (:image raw)
+          :services (mapv #(select-keys % [:name :endpoint]) (:services raw))
+          :x402-support (:x402Support raw)
+          :active (:active raw)
+          :registrations (mapv (fn [entry]
+                                 {:agent-id (:agentId entry)
+                                  :agent-registry (:agentRegistry entry)})
+                               (:registrations raw))
+          :supported-trust (:supportedTrust raw)}))
+
+     (defn- decode-base64-utf8 [encoded]
+       (try
+         (let [binary (js/atob encoded)
+               bytes (js/Uint8Array. (count binary))]
+           (dotimes [i (count binary)]
+             (aset bytes i (.charCodeAt binary i)))
+           (.decode (js/TextDecoder. "utf-8" #js {:fatal true}) bytes))
+         (catch :default _ (fail! :document/base64 {}))))
+
+     (defn- registration-text!
+       [fetch-fn uri {:keys [allowed-https-hosts ipfs-gateway]}]
+       (cond
+         (str/starts-with? uri "data:application/json;base64,")
+         (let [text (decode-base64-utf8
+                     (subs uri (count "data:application/json;base64,")))]
+           (when (> (count text) max-document-text-chars)
+             (fail! :document/too-large {:scheme "data"}))
+           (js/Promise.resolve text))
+
+         :else
+         (let [url (cond
+                     (str/starts-with? uri "ipfs://")
+                     (when (and (string? ipfs-gateway)
+                                (re-matches #"https://\S+" ipfs-gateway))
+                       (str (str/replace ipfs-gateway #"/+$" "") "/ipfs/" (subs uri 7)))
+
+                     (str/starts-with? uri "https://")
+                     (let [parsed (try (js/URL. uri)
+                                       (catch :default _ (fail! :document/uri {:uri uri})))
+                           allowed (set (map str/lower-case allowed-https-hosts))]
+                       (when (contains? allowed (str/lower-case (.-hostname parsed))) uri)))]
+           (when-not url (fail! :document/not-allowed {:uri uri}))
+           (-> (fetch-fn url #js {:method "GET" :headers #js {"accept" "application/json"}})
+               (.then (fn [response]
+                        (when-not (.-ok response)
+                          (fail! :document/http {:status (.-status response)}))
+                        (.text response)))
+               (.then (fn [text]
+                        (when (> (count text) max-document-text-chars)
+                          (fail! :document/too-large {:uri url}))
+                        text))))))
+
+     (defn verify-erc8004-reputation!
+       "Read one ERC-8004 registration and an allowlisted Reputation summary
+       from a pinned deployment. Validation is deliberately absent until a
+       governed Validation Registry deployment exists."
+       [{:keys [fetch-fn rpc-url coordinate agent-id policy document-options]}]
+       (when-not (and (string? rpc-url) (re-matches #"https://\S+" rpc-url))
+         (fail! :rpc/url {:rpc-url rpc-url}))
+       (when-not (and (integer? agent-id) (not (neg? agent-id)))
+         (fail! :agent/id {:agent-id agent-id}))
+       (let [fetch-fn (or fetch-fn js/fetch)
+             identity (:identity-registry coordinate)
+             reputation (:reputation-registry coordinate)
+             clients (get-in policy [:reputation :allowed-clients])]
+         (-> (js/Promise.all
+              #js [(eth-call! fetch-fn rpc-url coordinate reputation
+                              (str "0x" get-identity-registry-selector))
+                   (eth-call! fetch-fn rpc-url coordinate identity
+                              (single-uint-call-data owner-of-selector agent-id))
+                   (eth-call! fetch-fn rpc-url coordinate identity
+                              (single-uint-call-data token-uri-selector agent-id))
+                   (eth-call! fetch-fn rpc-url coordinate identity
+                              (single-uint-call-data get-agent-wallet-selector agent-id))
+                   (eth-call! fetch-fn rpc-url coordinate reputation
+                              (reputation-call-data agent-id clients))])
+             (.then
+              (fn [values]
+                (let [binding (decode-address-result (aget values 0) "reputation.identity-registry")
+                      owner (decode-address-result (aget values 1) "agent.owner")
+                      uri (decode-string-result (aget values 2) "agent.uri")
+                      wallet (decode-address-result (aget values 3) "agent.wallet")
+                      summary (decode-reputation-summary-result (aget values 4))]
+                  (-> (registration-text! fetch-fn uri document-options)
+                      (.then
+                       (fn [text]
+                         (erc8004/verify!
+                          (erc8004/static-reader
+                           {:registry-bindings {:reputation-identity-registry binding}
+                            :agents {agent-id {:owner owner :agent-uri uri
+                                               :registration (registration-map text)
+                                               :agent-wallet wallet
+                                               :wallet-verified? true}}
+                            :reputations {[agent-id clients] summary}})
+                          coordinate agent-id policy))))))))))))
