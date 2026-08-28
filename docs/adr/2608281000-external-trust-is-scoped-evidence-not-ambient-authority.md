@@ -17,7 +17,7 @@ The three products need different evidence:
 | --- | --- | --- |
 | Itonami human/organization operator | Human Passport as optional Sybil-resistance step-up | one evidence-only action |
 | Kotobase evidence authority | EAS schema and attester provenance | active at authenticated `evidence.ingest`; evidence receipt only |
-| Murakumo agent execution | ERC-8004 registration/reputation/validation | registry coordinate ungoverned, no live enforcement |
+| Murakumo agent execution | ERC-8004 registration and allowlisted reputation | active at `agent.execute`; Validation deferred because the official deployment table has no coordinate |
 
 ## Decision
 
@@ -46,10 +46,19 @@ responses, strictly decodes the EAS record and schema tuples, and only then
 hands decoded values to `identity.adapters.eas/verify!`. Caller-supplied decoded
 attestations are never accepted as chain evidence.
 
-Murakumo will not activate ERC-8004 until governance selects a chain and the
-Identity, Reputation and Validation registry coordinates and pins their code.
-Registration, reputation and validation remain separate inputs. None alone
-authorizes execution. Until then the public state is `supported-unbound`.
+Murakumo pins the official Base mainnet Identity and Reputation coordinates and
+enforces both at `agent.execute`. The access-token subject must equal the
+verified agent wallet; allowlisted reputation, the ordinary generation
+capability, billing admission and a configured generation upstream remain
+additional independent gates. RPC transport uses a bounded ordered endpoint
+set and fails closed only after every configured endpoint fails.
+
+Validation remains a separate input and is deliberately deferred. The official
+ERC-8004 deployment table does not publish a Base mainnet Validation Registry
+coordinate. Activation therefore requires an official coordinate, pinned
+runtime code and Identity binding, a governed validator/response/expiry policy,
+and positive, expired, revoked and unavailable-evidence proofs. A third-party
+deployment is not silently promoted into the trust root.
 
 ## Lifecycle and records
 
@@ -61,8 +70,12 @@ Refreshing evidence creates a new decision; it does not silently extend an old
 one. Services must not cache acceptance beyond the claim validity limit.
 
 The public profile is transport discovery, not a credential. HTTPS authenticates
-delivery. A future signed projection may add content authentication without
-changing the evidence or authorization model.
+delivery. The Murakumo policy also has a detached Ed25519 quorum envelope over its
+digest so a downloaded copy can be authenticated independently of HTTPS. The
+signature changes content authentication only; it does not change the evidence
+or authorization model. The two current signatures are distinct governance
+keys, but all governance keys remain under one operator's custody and therefore
+do not constitute independent human review.
 
 ## Consequences
 
