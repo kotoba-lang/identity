@@ -37,6 +37,20 @@
     (is (nil? (get-in example [:sources :erc8004 :registryBinding])))
     (is (false? (get-in example [:claims :erc8004LiveRegistry])))))
 
+(deftest agent-execution-role-publishes-the-governed-reputation-only-binding
+  (let [profile (trust-profile/profile
+                 {:origin "https://murakumo.cloud"
+                  :authorityDid "did:web:murakumo.cloud"
+                  :role "agent-execution"
+                  :identityEndpoint "https://murakumo.cloud/api/v1/viewer"})]
+    (is (= "active" (get-in profile [:policy :erc8004 :status])))
+    (is (= "agent.execute" (get-in profile [:policy :erc8004 :action])))
+    (is (= 8453 (get-in profile [:policy :erc8004 :chainId])))
+    (is (nil? (get-in profile [:policy :erc8004 :validationRegistry])))
+    (is (= "supported-bound" (get-in profile [:sources :erc8004 :status])))
+    (is (true? (get-in profile [:claims :erc8004LiveRegistry])))
+    (is (false? (get-in profile [:policy :erc8004 :grantsCapability])))))
+
 (deftest evidence-authority-publishes-the-bounded-eas-action
   (is (= "evidence.ingest"
          (get-in example [:policy :ethereumAttestationService :action])))

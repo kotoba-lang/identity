@@ -18,4 +18,7 @@
            (str "urn:sha256:" (sha256 file)))))
   (let [file "resources/public/policies/trust/eas/kotobase-v1.json"]
     (is (= (:id policy/kotobase-eas-policy)
+           (str "urn:sha256:" (sha256 file)))))
+  (let [file "resources/public/policies/trust/erc8004/murakumo-v1.json"]
+    (is (= (:id policy/murakumo-erc8004-policy)
            (str "urn:sha256:" (sha256 file))))))
