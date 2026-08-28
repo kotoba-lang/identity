@@ -88,3 +88,12 @@
     (is (= :registry/reputation-identity-binding
            (problem #(erc8004/verify! bad-reader coordinate 7
                                       (dissoc policy :reputation :validation)))))))
+
+(deftest reputation-only-deployment-does-not-invent-a-validation-registry
+  (let [coordinate (dissoc coordinate :validation-registry)
+        policy (dissoc policy :validation)
+        bundle (erc8004/verify! (reader chain-agent {:count 3 :score 91} nil)
+                                coordinate 7 policy)]
+    (is (= [:erc8004/reputation-qualified]
+           (mapv :trust.claim/predicate (:identity/trust-claims bundle))))
+    (is (= 2 (count (:identity/evidence bundle))))))
