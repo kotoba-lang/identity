@@ -47,6 +47,7 @@
     (is (every? causal/valid? (:identity/trust-claims bundle)))
     (is (= #{:erc8004/reputation-qualified :erc8004/validation-qualified}
            (set (map :trust.claim/predicate (:identity/trust-claims bundle)))))
+    (is (= (:agent-wallet chain-agent) (:identity.erc8004/agent-wallet bundle)))
     (is (empty? (:identity/refusals bundle)))))
 
 (deftest below-threshold-is-a-refusal-not-a-trust-claim

@@ -237,4 +237,6 @@
           :non-adjudicating true})]
        :identity/trust-claims claims
        :identity/refusals refusals
-       :identity.erc8004/registration registration})))
+       :identity.erc8004/registration registration
+       :identity.erc8004/owner owner
+       :identity.erc8004/agent-wallet agent-wallet})))
