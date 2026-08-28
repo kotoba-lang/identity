@@ -19,6 +19,13 @@
 (def ^:private reputation-summary-selector "81bbba58")
 (def ^:private max-rpc-text-chars (* 4 1024 1024))
 (def ^:private max-document-text-chars (* 256 1024))
+(def ^:private zero-address "0x0000000000000000000000000000000000000000")
+
+(defn normalize-agent-wallet
+  "ERC-8004 uses the zero address when no agent wallet is set. Do not project
+  that sentinel as a verified execution principal."
+  [address]
+  (when-not (= zero-address (some-> address str/lower-case)) address))
 
 (defn- fail! [code details]
   (throw (ex-info "EVM edge trust reader rejected input"
@@ -353,7 +360,8 @@
                 (let [binding (decode-address-result (aget values 0) "reputation.identity-registry")
                       owner (decode-address-result (aget values 1) "agent.owner")
                       uri (decode-string-result (aget values 2) "agent.uri")
-                      wallet (decode-address-result (aget values 3) "agent.wallet")
+                      wallet (normalize-agent-wallet
+                              (decode-address-result (aget values 3) "agent.wallet"))
                       summary (decode-reputation-summary-result (aget values 4))]
                   (-> (registration-text! fetch-fn uri document-options)
                       (.then
@@ -364,6 +372,6 @@
                             :agents {agent-id {:owner owner :agent-uri uri
                                                :registration (registration-map text)
                                                :agent-wallet wallet
-                                               :wallet-verified? true}}
+                                               :wallet-verified? (some? wallet)}}
                             :reputations {[agent-id clients] summary}})
                           coordinate agent-id policy))))))))))))
