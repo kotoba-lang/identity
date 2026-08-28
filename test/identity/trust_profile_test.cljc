@@ -17,7 +17,7 @@
   (is (false? (get-in example [:semantics :universalTrustScore])))
   (is (true? (get-in example [:semantics :failClosed])))
   (is (= 7776000 (get-in example [:sources :humanPassport :maximumAgeSeconds])))
-  (is (= "adapter-available-not-enforced"
+  (is (= "active"
          (get-in example [:policy :ethereumAttestationService :status]))))
 
 (deftest service-role-selects-use-policy-not-a-universal-policy
@@ -36,3 +36,14 @@
     (is (= "supported-unbound" (get-in example [:sources :erc8004 :status])))
     (is (nil? (get-in example [:sources :erc8004 :registryBinding])))
     (is (false? (get-in example [:claims :erc8004LiveRegistry])))))
+
+(deftest evidence-authority-publishes-the-bounded-eas-action
+  (is (= "evidence.ingest"
+         (get-in example [:policy :ethereumAttestationService :action])))
+  (is (= "urn:sha256:69f422026ab1efb38c7848a1e1bc5a0b2c52a4de6ecd774eef7b96cc0af6a6c1"
+         (get-in example [:policy :ethereumAttestationService :id])))
+  (is (= "/xrpc/ai.gftd.apps.kotobase.evidence.ingest"
+         (get-in example [:policy :ethereumAttestationService :verificationEndpoint])))
+  (is (= "evidence-only"
+         (get-in example [:policy :ethereumAttestationService :effect])))
+  (is (false? (get-in example [:policy :ethereumAttestationService :grantsCapability]))))

@@ -24,6 +24,25 @@
    :effect :evidence-only
    :grants-capability? false})
 
+(def kotobase-eas-policy
+  {:id "urn:sha256:69f422026ab1efb38c7848a1e1bc5a0b2c52a4de6ecd774eef7b96cc0af6a6c1"
+   :version policy-version
+   :service-origin "https://kotobase.net"
+   :action "evidence.ingest"
+   :source :ethereum-attestation-service
+   :status :active
+   :subject-binding :authenticated-tenant-evidence-record
+   :chain-id 10
+   :eas-address "0x4200000000000000000000000000000000000021"
+   :schema-uid "0xda0257ae76e2f8fcd31e3c0f8b385ce6820c45c3eb22d740531ea37e51cb7254"
+   :allowed-attesters ["0x843829c0c5a0c8c855620a4eb254b8609c6ebB1a"]
+   :maximum-age-seconds (* 90 24 60 60)
+   :issued-at "2026-08-28T00:00:00Z"
+   :verification-endpoint "/xrpc/ai.gftd.apps.kotobase.evidence.ingest"
+   :idempotency :sha256-keyed-strong-transaction
+   :effect :evidence-only
+   :grants-capability? false})
+
 (defn- public-human-passport-policy [policy]
   {:id (:id policy)
    :version (:version policy)
@@ -40,6 +59,25 @@
    :effect (name (:effect policy))
    :grantsCapability false})
 
+(defn- public-eas-policy [policy]
+  {:id (:id policy)
+   :version (:version policy)
+   :serviceOrigin (:service-origin policy)
+   :action (:action policy)
+   :source "ethereum-attestation-service"
+   :status (name (:status policy))
+   :subjectBinding (name (:subject-binding policy))
+   :chainId (:chain-id policy)
+   :easAddress (:eas-address policy)
+   :schemaUid (:schema-uid policy)
+   :allowedAttesters (:allowed-attesters policy)
+   :maximumAgeSeconds (:maximum-age-seconds policy)
+   :issuedAt (:issued-at policy)
+   :verificationEndpoint (:verification-endpoint policy)
+   :idempotency (name (:idempotency policy))
+   :effect (name (:effect policy))
+   :grantsCapability false})
+
 (def service-policies
   {"human-organization-operator"
    {:humanPassport (public-human-passport-policy itonami-human-passport-policy)
@@ -49,8 +87,7 @@
 
    "evidence-authority"
    {:humanPassport {:status "not-enforced"}
-    :ethereumAttestationService {:status "adapter-available-not-enforced"
-                                 :plannedAction "evidence.ingest"}
+    :ethereumAttestationService (public-eas-policy kotobase-eas-policy)
     :erc8004 {:status "unbound"}}
 
    "agent-execution"
