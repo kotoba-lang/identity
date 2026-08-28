@@ -43,6 +43,27 @@
    :effect :evidence-only
    :grants-capability? false})
 
+(def murakumo-erc8004-policy
+  {:id "urn:sha256:e35d20686db527eaa50c6c94f95a2c8d51a1f368d0bc44322a45341637910efd"
+   :version policy-version
+   :service-origin "https://murakumo.cloud"
+   :action "agent.execute"
+   :source :erc8004
+   :status :active
+   :subject-binding :access-token-subject-equals-verified-agent-wallet
+   :namespace "eip155"
+   :chain-id 8453
+   :identity-registry "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+   :reputation-registry "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"
+   :validation-registry nil
+   :allowed-clients ["0xA00366234D29d4F882088048c0B2fa0dB7302D4E"]
+   :minimum-feedback-count 1
+   :minimum-reputation-score 1
+   :issued-at "2026-08-28T00:00:00Z"
+   :verification-endpoint "/api/v1/agent/execute"
+   :effect :execution-admission-evidence
+   :grants-capability? false})
+
 (defn- public-human-passport-policy [policy]
   {:id (:id policy)
    :version (:version policy)
@@ -78,6 +99,30 @@
    :effect (name (:effect policy))
    :grantsCapability false})
 
+(defn- public-erc8004-policy [policy]
+  {:id (:id policy)
+   :version (:version policy)
+   :serviceOrigin (:service-origin policy)
+   :action (:action policy)
+   :source "erc8004"
+   :status (name (:status policy))
+   :subjectBinding (name (:subject-binding policy))
+   :namespace (:namespace policy)
+   :chainId (:chain-id policy)
+   :identityRegistry (:identity-registry policy)
+   :reputationRegistry (:reputation-registry policy)
+   :validationRegistry (:validation-registry policy)
+   :allowedClients (:allowed-clients policy)
+   :minimumFeedbackCount (:minimum-feedback-count policy)
+   :minimumReputationScore (:minimum-reputation-score policy)
+   :issuedAt (:issued-at policy)
+   :verificationEndpoint (:verification-endpoint policy)
+   :additionalRequirements ["valid murakumo generation capability"
+                            "billing admission"
+                            "configured generation upstream"]
+   :effect (name (:effect policy))
+   :grantsCapability false})
+
 (def service-policies
   {"human-organization-operator"
    {:humanPassport (public-human-passport-policy itonami-human-passport-policy)
@@ -93,8 +138,7 @@
    "agent-execution"
    {:humanPassport {:status "not-enforced-for-agent-execution"}
     :ethereumAttestationService {:status "adapter-available-not-enforced"}
-    :erc8004 {:status "unbound"
-              :plannedAction "agent.execute"}}})
+    :erc8004 (public-erc8004-policy murakumo-erc8004-policy)}})
 
 (defn service-policy [role]
   (get service-policies role

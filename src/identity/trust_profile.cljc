@@ -27,7 +27,10 @@
   identity endpoint that contextualizes this profile. The external sources
   and refusal semantics remain identical across every service."
   [{:keys [origin authorityDid role identityEndpoint]}]
-  {:schema schema
+  (let [service-policy (trust-policy/service-policy role)
+        erc-policy (:erc8004 service-policy)
+        erc-bound? (= "active" (:status erc-policy))]
+   {:schema schema
    :version 1
    :service {:origin origin
              :authorityDid authorityDid
@@ -54,13 +57,23 @@
                     "not-expired" "chain-coordinate"]
      :status "supported"}
     :erc8004
-    {:specification "https://eips.ethereum.org/EIPS/eip-8004"
-     :purpose ["agent/registration" "agent/reputation" "agent/validation"]
-     :implementation "three-registry-draft-adapter"
-     :registryBinding nil
-     :status "supported-unbound"
-     :refusalReason "canonical-registry-coordinate-not-governed"}}
-   :policy (trust-policy/service-policy role)
+    (cond->
+     {:specification "https://eips.ethereum.org/EIPS/eip-8004"
+      :purpose ["agent/registration" "agent/reputation" "agent/validation"]
+      :implementation "three-registry-draft-adapter"
+      :registryBinding nil
+      :status "supported-unbound"
+      :refusalReason "canonical-registry-coordinate-not-governed"}
+      erc-bound?
+      (assoc :purpose ["agent/registration" "agent/reputation"]
+             :registryBinding {:namespace (:namespace erc-policy)
+                               :chainId (:chainId erc-policy)
+                               :identityRegistry (:identityRegistry erc-policy)
+                               :reputationRegistry (:reputationRegistry erc-policy)
+                               :validationRegistry (:validationRegistry erc-policy)}
+             :status "supported-bound"
+             :refusalReason nil))}
+   :policy service-policy
    :claims {:humanPassportKyc false
             :humanPassportUniversalReputation false
-            :erc8004LiveRegistry false}})
+            :erc8004LiveRegistry erc-bound?}}))
