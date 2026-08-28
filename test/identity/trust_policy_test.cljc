@@ -1,6 +1,7 @@
 (ns identity.trust-policy-test
   (:require [clojure.test :refer [deftest is testing]]
-            [identity.trust-policy :as policy]))
+            [identity.trust-policy :as policy]
+            [identity.trust-profile :as trust-profile]))
 
 (def verified
   {:identity.eas/attestation {:recipient "0xA00366234D29d4F882088048c0B2fa0dB7302D4E"}
@@ -36,3 +37,13 @@
                   verified)]
     (is (= :evidence-only (:effect decision)))
     (is (false? (:grants-capability? decision)))))
+
+(deftest kotobase-policy-coordinate-matches-the-eas-reader
+  (is (= [trust-profile/human-passport-attester]
+         (:allowed-attesters policy/kotobase-eas-policy)))
+  (is (= trust-profile/human-passport-schema-uid
+         (:schema-uid policy/kotobase-eas-policy)))
+  (is (= (:chainId trust-profile/human-passport-coordinate)
+         (:chain-id policy/kotobase-eas-policy)))
+  (is (= (:easAddress trust-profile/human-passport-coordinate)
+         (:eas-address policy/kotobase-eas-policy))))

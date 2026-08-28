@@ -34,8 +34,8 @@
    :subject-binding :authenticated-tenant-evidence-record
    :chain-id 10
    :eas-address "0x4200000000000000000000000000000000000021"
-   :schema-uid "0xda0257ae76e2f8fcd31e3c0f8b385ce6820c45c3eb22d740531ea37e51cb7254"
-   :allowed-attesters ["0x843829c0c5a0c8c855620a4eb254b8609c6ebB1a"]
+   :schema-uid "0xda0257756063c891659fed52fd36ef7557f7b45d66f59645fd3c3b263b747254"
+   :allowed-attesters ["0x843829986e895facd330486a61Ebee9E1f1adB1a"]
    :maximum-age-seconds (* 90 24 60 60)
    :issued-at "2026-08-28T00:00:00Z"
    :verification-endpoint "/xrpc/ai.gftd.apps.kotobase.evidence.ingest"
