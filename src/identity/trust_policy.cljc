@@ -44,7 +44,7 @@
    :grants-capability? false})
 
 (def murakumo-erc8004-policy
-  {:id "urn:sha256:e35d20686db527eaa50c6c94f95a2c8d51a1f368d0bc44322a45341637910efd"
+  {:id "urn:sha256:16764a912de06ccb974ba9870c8c2dcd24c1bdd40cf2ccd1bb1dd079f02e0953"
    :version policy-version
    :service-origin "https://murakumo.cloud"
    :action "agent.execute"
@@ -56,6 +56,13 @@
    :identity-registry "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
    :reputation-registry "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"
    :validation-registry nil
+   :validation-status :deferred-upstream-no-official-deployment
+   :validation-reference "https://github.com/erc-8004/erc-8004-contracts#mainnet"
+   :validation-activation-requirements
+   ["official Base mainnet deployment coordinate"
+    "pinned runtime code hash and Identity Registry binding"
+    "validator allowlist, response policy, and expiry semantics"
+    "positive, expired, revoked, and unavailable evidence proofs"]
    :allowed-clients ["0xA00366234D29d4F882088048c0B2fa0dB7302D4E"]
    :minimum-feedback-count 1
    :minimum-reputation-score 1
@@ -112,6 +119,9 @@
    :identityRegistry (:identity-registry policy)
    :reputationRegistry (:reputation-registry policy)
    :validationRegistry (:validation-registry policy)
+   :validationStatus (name (:validation-status policy))
+   :validationReference (:validation-reference policy)
+   :validationActivationRequirements (:validation-activation-requirements policy)
    :allowedClients (:allowed-clients policy)
    :minimumFeedbackCount (:minimum-feedback-count policy)
    :minimumReputationScore (:minimum-reputation-score policy)
