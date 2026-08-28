@@ -32,6 +32,10 @@ Implemented:
 - Coordinate-driven JVM ERC-8004 reader for Identity, Reputation, and Validation
   registry calls plus bounded HTTPS, IPFS-gateway, and base64 data registration
   documents.
+- Published trust-profile/v1 JSON Schema and role-specific policy projection.
+- Itonami `identity.sybil-step-up` policy decision with verified Principal
+  account recipient binding; the decision is evidence-only and grants no
+  capability.
 
 Not yet R2:
 - ERC-8004 live activation. The draft does not publish canonical registry
@@ -39,3 +43,5 @@ Not yet R2:
   implemented reader can be bound to a live chain.
 - Current live state of the historical Etzhayyim private chain is unverified;
   its old monolithic contract is explicitly outside current ERC-8004 support.
+- Kotobase EAS evidence-ingest enforcement and Murakumo ERC-8004 execution
+  enforcement remain inactive service integrations.

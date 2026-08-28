@@ -1,0 +1,106 @@
+(ns identity.trust-policy
+  "Governed, service-specific use of external trust evidence.
+
+  Adapter support is not authorization.  This namespace is the small policy
+  bridge between verified evidence and one named service action.  Missing
+  service/action policy always means deny; no source produces ambient trust."
+  (:require [clojure.string :as str]))
+
+(def policy-version 1)
+
+(def itonami-human-passport-policy
+  {:id "urn:sha256:528431823be6f06bb184dcaaa712ab642c35e92795cd55a3f6859911aadbf877"
+   :version policy-version
+   :service-origin "https://itonami.cloud"
+   :action "identity.sybil-step-up"
+   :source :human-passport
+   :status :active
+   :subject-binding :verified-principal-account-recipient
+   :scorer-id 335
+   :minimum-score 200000
+   :maximum-age-seconds (* 90 24 60 60)
+   :issued-at "2026-08-28T00:00:00Z"
+   :verification-endpoint "/api/v1/trust/human-passport/verify"
+   :effect :evidence-only
+   :grants-capability? false})
+
+(defn- public-human-passport-policy [policy]
+  {:id (:id policy)
+   :version (:version policy)
+   :serviceOrigin (:service-origin policy)
+   :action (:action policy)
+   :source "human-passport"
+   :status (name (:status policy))
+   :subjectBinding (name (:subject-binding policy))
+   :scorerId (:scorer-id policy)
+   :minimumScore (:minimum-score policy)
+   :maximumAgeSeconds (:maximum-age-seconds policy)
+   :issuedAt (:issued-at policy)
+   :verificationEndpoint (:verification-endpoint policy)
+   :effect (name (:effect policy))
+   :grantsCapability false})
+
+(def service-policies
+  {"human-organization-operator"
+   {:humanPassport (public-human-passport-policy itonami-human-passport-policy)
+    :ethereumAttestationService {:status "active-via-human-passport"
+                                 :acceptedPurpose ["identity" "sybil-resistance"]}
+    :erc8004 {:status "unsupported-for-human-authorization"}}
+
+   "evidence-authority"
+   {:humanPassport {:status "not-enforced"}
+    :ethereumAttestationService {:status "adapter-available-not-enforced"
+                                 :plannedAction "evidence.ingest"}
+    :erc8004 {:status "unbound"}}
+
+   "agent-execution"
+   {:humanPassport {:status "not-enforced-for-agent-execution"}
+    :ethereumAttestationService {:status "adapter-available-not-enforced"}
+    :erc8004 {:status "unbound"
+              :plannedAction "agent.execute"}}})
+
+(defn service-policy [role]
+  (get service-policies role
+       {:humanPassport {:status "not-enforced"}
+        :ethereumAttestationService {:status "not-enforced"}
+        :erc8004 {:status "unbound"}}))
+
+(defn human-passport-policy
+  "Return the active policy only for the exact service/action pair."
+  [service-origin action]
+  (let [policy itonami-human-passport-policy]
+    (when (and (= service-origin (:service-origin policy))
+               (= action (:action policy))
+               (= :active (:status policy)))
+      policy)))
+
+(defn authorize-human-passport
+  "Convert an already verified Human Passport result into a bounded decision.
+
+  This does not verify EAS and never grants a capability.  It proves that the
+  verified recipient is the service's verified Principal account and records
+  the exact policy/evidence identifiers used for the step-up evidence."
+  [policy expected-recipient verified]
+  (let [actual (some-> verified :identity.eas/attestation :recipient str/lower-case)
+        expected (some-> expected-recipient str str/lower-case)
+        claim (first (:identity/trust-claims verified))]
+    (cond
+      (nil? policy)
+      {:allowed? false :reason :policy/not-found}
+
+      (or (str/blank? expected) (not= expected actual))
+      {:allowed? false :reason :subject/recipient-mismatch}
+
+      (nil? claim)
+      {:allowed? false :reason :evidence/trust-claim-missing}
+
+      :else
+      {:allowed? true
+       :reason :evidence/verified
+       :action (:action policy)
+       :effect (:effect policy)
+       :grants-capability? false
+       :policy-id (:id policy)
+       :subject-recipient expected
+       :claim-id (:identity.causal/id claim)
+       :valid-until (:identity.causal/valid-until claim)})))

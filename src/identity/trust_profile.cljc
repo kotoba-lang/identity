@@ -2,7 +2,8 @@
   "Machine-readable discovery for Kotoba's external trust evidence boundary.
 
   This is intentionally a description of accepted evidence types, not a
-  universal score and not proof that a particular subject is trustworthy.")
+  universal score and not proof that a particular subject is trustworthy."
+  (:require [identity.trust-policy :as trust-policy]))
 
 (def schema "https://kotoba-lang.org/schemas/trust-profile/v1")
 
@@ -59,6 +60,7 @@
      :registryBinding nil
      :status "supported-unbound"
      :refusalReason "canonical-registry-coordinate-not-governed"}}
+   :policy (trust-policy/service-policy role)
    :claims {:humanPassportKyc false
             :humanPassportUniversalReputation false
             :erc8004LiveRegistry false}})

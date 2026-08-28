@@ -64,6 +64,14 @@ is selected ambiently. Once coordinates are configured,
 `identity.adapters.ledger/persist-trust-bundle!` atomically commits a fully
 verified subject, evidence, attestations, and scoped claims.
 
+`identity.trust-policy` keeps verified evidence separate from ambient
+authorization. It currently activates one exact Itonami action,
+`identity.sybil-step-up`, binds the EAS recipient to the authenticated
+Principal account, and explicitly grants no capability. Kotobase EAS action
+admission and Murakumo ERC-8004 activation remain declared but inactive. The
+decision and remaining boundaries are recorded in
+`docs/adr/2608281000-external-trust-is-scoped-evidence-not-ambient-authority.md`.
+
 `identity.directory` defines the portable organization directory used by
 cloud-itonami: domain-scoped users and groups, lifecycle status, delegated
 administrator roles, and active-seat counting.
