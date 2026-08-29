@@ -1,5 +1,5 @@
 (ns identity.adapters.evm-test
-  (:require [clojure.data.json :as json]
+  (:require [json.data-json :as json]
             [clojure.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]
             [identity.adapters.evm :as evm]

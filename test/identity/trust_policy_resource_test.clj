@@ -1,5 +1,5 @@
 (ns identity.trust-policy-resource-test
-  (:require [clojure.data.json :as json]
+  (:require [json.data-json :as json]
             [clojure.test :refer [deftest is]]
             [identity.trust-policy :as policy])
   (:import [java.math BigInteger]

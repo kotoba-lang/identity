@@ -4,7 +4,7 @@
   This namespace owns transport and ABI decoding. The portable adapters remain
   pure policy boundaries. Every contract read verifies the remote chain ID
   before issuing eth_call."
-  (:require [clojure.data.json :as json]
+  (:require [json.data-json :as json]
             [clojure.string :as str]
             [identity.adapters.eas :as eas]
             [identity.adapters.erc8004 :as erc8004]
