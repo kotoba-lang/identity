@@ -1,6 +1,5 @@
 (ns identity.authenticators
   "did を軸に、認証方法を重ねる — factors bind TO a DID; they are not where it comes from.
-
   ## The axis
 
   A `did:key` is this workspace's portable name: it is derived from a key pair,
@@ -36,7 +35,8 @@
   semantics, and a copy in a second repo is a copy that can disagree. A factor
   outside the given set is REJECTED, never ignored — ignoring one silently
   drops a restriction somebody meant."
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str])
+  (:refer-clojure :exclude [binding]))
 
 (defn- blank? [s] (or (nil? s) (and (string? s) (str/blank? s))))
 
