@@ -4,7 +4,7 @@
   Chain access and ABI decoding belong to the host.  This namespace accepts
   decoded registry records, verifies their provenance and lifecycle, and
   emits portable identity evidence."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [identity.model :as model]))
 
 (defprotocol IEASReader
@@ -30,7 +30,7 @@
                   (assoc details :identity.eas/problem code))))
 
 (defn- canonical-hex [x]
-  (if (string? x) (str/lower-case x) x))
+  (if (string? x) (str/lower x) x))
 
 (defn- allowed-hex? [allowlist value]
   (contains? (set (map canonical-hex allowlist)) (canonical-hex value)))

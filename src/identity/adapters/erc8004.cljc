@@ -4,7 +4,7 @@
   This is deliberately not an adapter for the historical Etzhayyim
   monolithic `ERC-8004-shaped` contract. Hosts must read the standard Identity,
   Reputation, and Validation registries and fetch the registration document."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [identity.causal :as causal]
             [identity.model :as model]))
 
@@ -35,7 +35,7 @@
                 (re-matches #"[0-9a-fA-F]+" (subs x 2)))))
 
 (defn- same-address? [a b]
-  (and (string? a) (string? b) (= (str/lower-case a) (str/lower-case b))))
+  (and (string? a) (string? b) (= (str/lower a) (str/lower b))))
 
 (defn- fail! [code details]
   (throw (ex-info "ERC-8004 record rejected"
@@ -62,9 +62,9 @@
 
 (defn- registration-entry? [coordinate agent-id entry]
   (and (= agent-id (:agent-id entry))
-       (= (str/lower-case
+       (= (str/lower
            (str "eip155:" (:chain-id coordinate) ":" (:identity-registry coordinate)))
-          (some-> (:agent-registry entry) str/lower-case))))
+          (some-> (:agent-registry entry) str/lower))))
 
 (defn- registration! [coordinate agent-id registration]
   (when-not (map? registration)

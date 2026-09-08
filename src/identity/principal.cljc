@@ -9,7 +9,7 @@
   This namespace is deliberately pure. WebAuthn ceremony verification,
   ERC-1271/6492 calls, chain reads, persistence and capability admission stay
   with their respective host/provider boundaries."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def schema "kotoba.identity.principal.v1")
 

@@ -1,5 +1,5 @@
 (ns identity.adapters.eas-test
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]))
 
@@ -34,7 +34,7 @@
     (is (= uid (get-in result [:identity.eas/evidence :identity.evidence/ref :uid])))))
 
 (deftest ethereum-hex-allowlists-ignore-checksum-casing
-  (let [checksummed (str "0x" (str/upper-case (subs attester 2)))
+  (let [checksummed (str "0x" (str/upper (subs attester 2)))
         result (eas/verify! (reader {}) coordinate uid
                             (assoc policy :allowed-attesters #{checksummed}))]
     (is (= attester

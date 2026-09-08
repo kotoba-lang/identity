@@ -4,7 +4,7 @@
   Adapter support is not authorization.  This namespace is the small policy
   bridge between verified evidence and one named service action.  Missing
   service/action policy always means deny; no source produces ambient trust."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def policy-version 1)
 
@@ -172,8 +172,8 @@
   verified recipient is the service's verified Principal account and records
   the exact policy/evidence identifiers used for the step-up evidence."
   [policy expected-recipient verified]
-  (let [actual (some-> verified :identity.eas/attestation :recipient str/lower-case)
-        expected (some-> expected-recipient str str/lower-case)
+  (let [actual (some-> verified :identity.eas/attestation :recipient str/lower)
+        expected (some-> expected-recipient str str/lower)
         claim (first (:identity/trust-claims verified))]
     (cond
       (nil? policy)
