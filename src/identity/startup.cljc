@@ -36,7 +36,7 @@
   Every path that cannot establish a live delegation returns
   `:identity.startup/serve :public-only`. There is no branch that falls back
   to ambient trust — that fallback is what this design replaces."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def states #{:key-present :mint :link :undecidable})
 

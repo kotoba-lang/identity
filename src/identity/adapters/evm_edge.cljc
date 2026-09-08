@@ -4,7 +4,7 @@
   The portable EAS policy remains in identity.adapters.eas. This namespace
   only supplies bounded JSON-RPC transport and strict ABI decoding for hosts
   such as Cloudflare Workers."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [identity.adapters.eas :as eas]
             [identity.adapters.erc8004 :as erc8004])
   #?(:clj (:import (java.math BigInteger)
@@ -25,7 +25,7 @@
   "ERC-8004 uses the zero address when no agent wallet is set. Do not project
   that sentinel as a verified execution principal."
   [address]
-  (when-not (= zero-address (some-> address str/lower-case)) address))
+  (when-not (= zero-address (some-> address str/lower)) address))
 
 (defn- fail! [code details]
   (throw (ex-info "EVM edge trust reader rejected input"
@@ -74,13 +74,13 @@
   (uint-at hex offset label))
 
 (defn- bytes32-at [hex offset label]
-  (str "0x" (str/lower-case (slice-bytes hex offset 32 label))))
+  (str "0x" (str/lower (slice-bytes hex offset 32 label))))
 
 (defn- address-at [hex offset label]
   (let [word (slice-bytes hex offset 32 label)]
     (when-not (re-matches #"0{24}[0-9a-fA-F]{40}" word)
       (fail! :abi/address-padding {:field label}))
-    (str "0x" (str/lower-case (subs word 24)))))
+    (str "0x" (str/lower (subs word 24)))))
 
 (defn- bool-at [hex offset label]
   (case (uint-at hex offset label)
@@ -122,7 +122,7 @@
 (defn- address-word [address label]
   (when-not (and (string? address) (re-matches #"0x[0-9a-fA-F]{40}" address))
     (fail! :abi/address {:field label :value address}))
-  (str (apply str (repeat 24 "0")) (str/lower-case (subs address 2))))
+  (str (apply str (repeat 24 "0")) (str/lower (subs address 2))))
 
 (defn- address-array-abi [addresses]
   (str (uint-word (count addresses) "addresses.length")
@@ -318,8 +318,8 @@
                      (str/starts-with? uri "https://")
                      (let [parsed (try (js/URL. uri)
                                        (catch :default _ (fail! :document/uri {:uri uri})))
-                           allowed (set (map str/lower-case allowed-https-hosts))]
-                       (when (contains? allowed (str/lower-case (.-hostname parsed))) uri)))]
+                           allowed (set (map str/lower allowed-https-hosts))]
+                       (when (contains? allowed (str/lower (.-hostname parsed))) uri)))]
            (when-not url (fail! :document/not-allowed {:uri uri}))
            (-> (fetch-fn url #js {:method "GET" :headers #js {"accept" "application/json"}})
                (.then (fn [response]

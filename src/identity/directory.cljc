@@ -1,24 +1,24 @@
 (ns identity.directory
   "Portable organization directory: users, groups, roles and lifecycle."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def user-statuses #{:active :suspended :deleted})
 (def roles #{:super-admin :user-admin :groups-admin :billing-admin :member})
 
 (defn directory [organization-id domain]
   {:directory/organization-id organization-id
-   :directory/domain (str/lower-case domain)
+   :directory/domain (str/lower domain)
    :directory/users {}
    :directory/groups {}})
 
 (defn domain-email? [domain email]
   (and (string? email)
-       (str/ends-with? (str/lower-case email) (str "@" (str/lower-case domain)))
+       (str/ends-with? (str/lower email) (str "@" (str/lower domain)))
        (> (count email) (inc (count domain)))))
 
 (defn user [id email attrs]
   {:directory.user/id id
-   :directory.user/email (some-> email str/trim str/lower-case)
+   :directory.user/email (some-> email str/trim str/lower)
    :directory.user/display-name (:display-name attrs)
    :directory.user/did (:did attrs)
    :directory.user/status (or (:status attrs) :active)
@@ -26,7 +26,7 @@
 
 (defn group [id email attrs]
   {:directory.group/id id
-   :directory.group/email (some-> email str/trim str/lower-case)
+   :directory.group/email (some-> email str/trim str/lower)
    :directory.group/display-name (:display-name attrs)
    :directory.group/members (set (:members attrs))})
 

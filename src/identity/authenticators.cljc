@@ -35,7 +35,7 @@
   semantics, and a copy in a second repo is a copy that can disagree. A factor
   outside the given set is REJECTED, never ignored — ignoring one silently
   drops a restriction somebody meant."
-  (:require [clojure.string :as str])
+  (:require [kotoba.lang.text :as str])
   (:refer-clojure :exclude [binding]))
 
 (defn- blank? [s] (or (nil? s) (and (string? s) (str/blank? s))))

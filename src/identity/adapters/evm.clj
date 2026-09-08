@@ -5,7 +5,7 @@
   pure policy boundaries. Every contract read verifies the remote chain ID
   before issuing eth_call."
   (:require [json.data-json :as json]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [identity.adapters.eas :as eas]
             [identity.adapters.erc8004 :as erc8004]
             [identity.adapters.human-passport :as passport])
@@ -70,13 +70,13 @@
     n))
 
 (defn- bytes32-at [hex offset label]
-  (str "0x" (str/lower-case (slice-bytes hex offset 32 label))))
+  (str "0x" (str/lower (slice-bytes hex offset 32 label))))
 
 (defn- address-at [hex offset label]
   (let [word (slice-bytes hex offset 32 label)]
     (when-not (re-matches #"0{24}[0-9a-fA-F]{40}" word)
       (fail! :abi/address-padding {:field label}))
-    (str "0x" (str/lower-case (subs word 24)))))
+    (str "0x" (str/lower (subs word 24)))))
 
 (defn- bool-at [hex offset label]
   (case (exact-long (uint-at hex offset label) label)
@@ -107,7 +107,7 @@
   (when-not (and (string? address)
                  (re-matches #"0x[0-9a-fA-F]{40}" address))
     (fail! :abi/address {:field label :value address}))
-  (str (apply str (repeat 24 "0")) (str/lower-case (subs address 2))))
+  (str (apply str (repeat 24 "0")) (str/lower (subs address 2))))
 
 (defn- empty-string-abi [] (uint-word 0 "string.length"))
 
@@ -375,8 +375,8 @@
     (let [parsed (try (URI/create uri)
                       (catch IllegalArgumentException e
                         (fail! :document/uri {:uri uri :cause (.getMessage e)})))
-          host (some-> parsed .getHost str/lower-case)
-          allowed (set (map str/lower-case allowed-https-hosts))]
+          host (some-> parsed .getHost str/lower)
+          allowed (set (map str/lower allowed-https-hosts))]
       (when-not (and host (contains? allowed host))
         (fail! :document/host-not-allowed {:host host :uri uri}))
       uri)
