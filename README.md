@@ -53,7 +53,7 @@ All three namespaces are pure verification/composition boundaries.
 `identity.adapters.evm` is the reference JVM host for pinned, read-only EAS and
 Human Passport access: it verifies `eth_chainId`, calls the configured EAS and
 Schema Registry contracts, and strictly decodes their ABI payloads. Run
-`clojure -M:live-human-passport` for the non-mutating Optimism proof. The
+`kbb -M:live-human-passport` for the non-mutating Optimism proof. The
 historical official sample is intentionally expected to fail closed as expired.
 Pass `--uid <attestation-uid>` (or set
 `HUMAN_PASSPORT_ATTESTATION_UID`) to require a current attestation to pass
