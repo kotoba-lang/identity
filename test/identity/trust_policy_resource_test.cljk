@@ -1,11 +1,11 @@
 (ns identity.trust-policy-resource-test
-  (:require [kotoba.io :as kio] [json.data-json :as json]
+  (:require [kotoba.bytes :as kbytes] [kotoba.io :as kio] [json.data-json :as json]
             [kotoba.test :refer [deftest is]]
             [identity.trust-policy :as policy])
   (:import [java.math BigInteger]
            [java.security KeyFactory MessageDigest Signature]
            [java.security.spec X509EncodedKeySpec]
-           [java.util Base64 HexFormat]))
+           [java.util HexFormat]))
 
 (defn- sha256 [file]
   (format "%064x"
@@ -32,8 +32,8 @@
                                     (X509EncodedKeySpec. spki))
         verifier (Signature/getInstance "Ed25519")]
     (.initVerify verifier public-key)
-    (.update verifier (.getBytes message "UTF-8"))
-    (.verify verifier (.decode (Base64/getDecoder) signature-base64))))
+    (.update verifier (kbytes/utf8-bytes message))
+    (.verify verifier (kbytes/base64-decode-bytes signature-base64))))
 
 (deftest murakumo-policy-has-a-valid-distinct-key-quorum
   (let [policy-file "resources/public/policies/trust/erc8004/murakumo-v1.json"

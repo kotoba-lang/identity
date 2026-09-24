@@ -1,5 +1,5 @@
 (ns identity.merge
-  (:require [clojure.set :as set]))
+  (:require [kotoba.lang.coll :as set]))
 
 (defn same-subject? [a b]
   (or (= (:identity.subject/id a) (:identity.subject/id b))
