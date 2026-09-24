@@ -1,9 +1,8 @@
 (ns identity.trust-policy-resource-test
-  (:require [json.data-json :as json]
+  (:require [kotoba.io :as kio] [json.data-json :as json]
             [clojure.test :refer [deftest is]]
             [identity.trust-policy :as policy])
   (:import [java.math BigInteger]
-           [java.nio.file Files Path]
            [java.security KeyFactory MessageDigest Signature]
            [java.security.spec X509EncodedKeySpec]
            [java.util Base64 HexFormat]))
@@ -12,8 +11,7 @@
   (format "%064x"
           (BigInteger. 1
                        (.digest (MessageDigest/getInstance "SHA-256")
-                                (Files/readAllBytes (Path/of file
-                                                            (make-array String 0)))))))
+                                (kio/read-all-bytes file)))))
 
 (deftest public-policy-id-is-the-exact-file-digest
   (let [file "resources/public/policies/trust/human-passport/itonami-v1.json"]
