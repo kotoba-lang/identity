@@ -1,5 +1,5 @@
 (ns identity.adapters.vc-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.adapters.vc :as vc]))
 
 (deftest binds-verifiable-credential-into-evidence-and-attestation

@@ -1,5 +1,9 @@
 {:paths ["src"]
  :deps {
+        ;; kotoba.test (clojure.test-compatible surface), not clojure.test --
+        ;; scripts/migrate-clojure-test-to-kotoba-test.cljk. Explicit floor.
+        io.github.kotoba-lang/test {:git/url "https://github.com/kotoba-lang/test.git"
+                                    :git/sha "2ab4885f99fd25552d380d0f6b0b54c5a72eb7ae"}
         ;; kotoba.io replaced java.nio.file.Files here (2026-09-24). An explicit
         ;; floor: temp-dir temp-file read-all-bytes write-bytes write-string
         ;; delete-if-exists are in kotoba.io from this sha, and tools.deps takes

@@ -1,5 +1,5 @@
 (ns identity.adapters.edn-ledger-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.adapters.edn-ledger :as edn-ledger]
             [identity.adapters.ledger :as ledger]
             [identity.model :as m]))

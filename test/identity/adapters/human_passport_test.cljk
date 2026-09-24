@@ -1,5 +1,5 @@
 (ns identity.adapters.human-passport-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]
             [identity.adapters.human-passport :as passport]
             [identity.causal :as causal]

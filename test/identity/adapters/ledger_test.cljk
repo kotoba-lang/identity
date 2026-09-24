@@ -1,5 +1,5 @@
 (ns identity.adapters.ledger-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.causal :as causal]
             [identity.adapters.ledger :as a]
             [identity.model :as m]))

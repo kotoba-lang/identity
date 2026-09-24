@@ -1,5 +1,5 @@
 (ns identity.adapters.erc8004-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.adapters.erc8004 :as erc8004]
             [identity.causal :as causal]
             [identity.validate :as validate]))

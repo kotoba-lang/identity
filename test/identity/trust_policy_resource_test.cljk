@@ -1,6 +1,6 @@
 (ns identity.trust-policy-resource-test
   (:require [kotoba.io :as kio] [json.data-json :as json]
-            [clojure.test :refer [deftest is]]
+            [kotoba.test :refer [deftest is]]
             [identity.trust-policy :as policy])
   (:import [java.math BigInteger]
            [java.security KeyFactory MessageDigest Signature]
