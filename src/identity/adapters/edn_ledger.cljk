@@ -1,17 +1,17 @@
 (ns identity.adapters.edn-ledger
   (:require [kotoba.lang.edn :as edn]
-            [clojure.java.io :as io]
+            [kotoba.io :as io]
             [identity.adapters.ledger :as ledger]))
 
 (defn- read-ledger [file]
-  (if (.exists (io/file file))
+  (if (io/exists? (io/file file))
     (edn/read-string (slurp file))
     {:txs [] :datoms []}))
 
 (defn- write-ledger! [file state]
   (let [f (io/file file)]
-    (when-let [parent (.getParentFile f)]
-      (.mkdirs parent))
+    (when-let [parent (io/parent-file f)]
+      (io/mkdirs parent))
     (spit f (pr-str state))
     state))
 

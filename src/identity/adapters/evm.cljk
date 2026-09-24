@@ -4,7 +4,7 @@
   This namespace owns transport and ABI decoding. The portable adapters remain
   pure policy boundaries. Every contract read verifies the remote chain ID
   before issuing eth_call."
-  (:require [json.data-json :as json]
+  (:require [kotoba.bytes :as kbytes] [json.data-json :as json]
             [kotoba.lang.text :as str]
             [identity.adapters.eas :as eas]
             [identity.adapters.erc8004 :as erc8004]
@@ -13,7 +13,6 @@
            (java.net URI)
            (java.net.http HttpClient HttpRequest HttpRequest$BodyPublishers
                           HttpResponse$BodyHandlers)
-           (java.nio.charset StandardCharsets)
            (java.time Duration)
            (java.util Base64)))
 
@@ -93,7 +92,7 @@
   (let [raw (bytes-at hex offset label)
         bytes (byte-array (map #(unchecked-byte (Integer/parseInt % 16))
                                (map (partial apply str) (partition 2 raw))))]
-    (String. bytes StandardCharsets/UTF_8)))
+    (kbytes/utf8-string bytes)))
 
 (defn- uint-word [n label]
   (when-not (and (integer? n) (not (neg? n)))
@@ -255,7 +254,7 @@
     (let [bytes (.readNBytes stream (inc limit))]
       (when (> (alength bytes) limit)
         (fail! kind {:limit-bytes limit}))
-      (String. bytes StandardCharsets/UTF_8))))
+      (kbytes/utf8-string bytes))))
 
 (defn- default-post! [^HttpClient client rpc-url body]
   (let [request (-> (HttpRequest/newBuilder (URI/create rpc-url))
@@ -302,7 +301,7 @@
       (fail! :rpc/http {:status status :method method}))
     (when-not (string? body)
       (fail! :rpc/body {:method method}))
-    (when (> (count (.getBytes ^String body StandardCharsets/UTF_8))
+    (when (> (count (kbytes/utf8-bytes ^String body))
              max-rpc-response-bytes)
       (fail! :rpc/response-too-large {:method method}))
     (let [response (try (json/read-str body :key-fn keyword)
@@ -393,11 +392,10 @@
     (fail! :document/uri {:uri uri}))
   (if (str/starts-with? uri "data:application/json;base64,")
     (let [encoded (subs uri (count "data:application/json;base64,"))
-          decoded (try (String. (.decode (Base64/getDecoder) encoded)
-                                StandardCharsets/UTF_8)
+          decoded (try (kbytes/utf8-string (.decode (Base64/getDecoder) encoded))
                        (catch IllegalArgumentException e
                          (fail! :document/base64 {:cause (.getMessage e)})))]
-      (when (> (count (.getBytes decoded StandardCharsets/UTF_8))
+      (when (> (count (kbytes/utf8-bytes decoded))
                max-document-response-bytes)
         (fail! :document/too-large {:uri-scheme "data"}))
       (parse-registration decoded))
@@ -409,7 +407,7 @@
           (fail! :document/http {:status status :url url}))
         (when-not (string? body)
           (fail! :document/body {:url url}))
-        (when (> (count (.getBytes ^String body StandardCharsets/UTF_8))
+        (when (> (count (kbytes/utf8-bytes ^String body))
                  max-document-response-bytes)
           (fail! :document/too-large {:url url}))
         (parse-registration body)))))

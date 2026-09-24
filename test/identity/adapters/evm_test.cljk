@@ -1,20 +1,18 @@
 (ns identity.adapters.evm-test
-  (:require [json.data-json :as json]
+  (:require [kotoba.bytes :as kbytes] [json.data-json :as json]
             [kotoba.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]
             [identity.adapters.evm :as evm]
             [identity.adapters.erc8004 :as erc8004]
             [identity.adapters.human-passport :as passport])
-  (:import (java.math BigInteger)
-           (java.nio.charset StandardCharsets)
-           (java.util Base64)))
+  (:import (java.math BigInteger)))
 
 (defn- word [n]
   (format "%064x" (biginteger n)))
 
 (defn- hex-text [s]
   (apply str (map #(format "%02x" (bit-and 0xff %))
-                  (.getBytes s StandardCharsets/UTF_8))))
+                  (kbytes/utf8-bytes s))))
 
 (defn- dynamic-bytes [raw]
   (str (word (quot (count raw) 2))
@@ -167,9 +165,8 @@
                       :registrations [{:agentId 7
                                        :agentRegistry (str "eip155:10:" identity-address)}]
                       :supportedTrust ["reputation" "validation"]}
-        encoded (.encodeToString (Base64/getEncoder)
-                                 (.getBytes (json/write-str registration)
-                                            StandardCharsets/UTF_8))
+        encoded (kbytes/base64-encode
+                                 (kbytes/utf8-bytes (json/write-str registration)))
         agent-uri (str "data:application/json;base64," encoded)
         address-result (fn [address]
                          (str "0x" (apply str (repeat 24 "0")) (subs address 2)))
