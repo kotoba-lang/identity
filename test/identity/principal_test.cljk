@@ -1,5 +1,5 @@
 (ns identity.principal-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.principal :as principal]))
 
 (def principal-id "urn:kotoba:principal:018f4d6c-29bf-7f80-9a21-111111111111")

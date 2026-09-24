@@ -1,5 +1,5 @@
 (ns identity.authenticators-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.authenticators :as auth]))
 
 (def did "did:key:z6MkhFwXNFWosLeugvSf4wcL9t3uuRXueGSFTRgSvHhWj5G2")

@@ -1,5 +1,5 @@
 (ns identity.directory-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.directory :as directory]))
 
 (deftest organization-directory-lifecycle

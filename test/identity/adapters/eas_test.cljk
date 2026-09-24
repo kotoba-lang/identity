@@ -1,6 +1,6 @@
 (ns identity.adapters.eas-test
   (:require [kotoba.lang.text :as str]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]))
 
 (def uid (str "0x" (apply str (repeat 64 "1"))))

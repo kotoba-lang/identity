@@ -1,5 +1,5 @@
 (ns identity.trust-policy-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.trust-policy :as policy]
             [identity.trust-profile :as trust-profile]))
 

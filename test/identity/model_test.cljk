@@ -1,5 +1,5 @@
 (ns identity.model-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.datom :as d]
             [identity.model :as m]
             [identity.validate :as v]))

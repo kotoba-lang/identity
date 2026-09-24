@@ -1,5 +1,5 @@
 (ns identity.adapters.did-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.adapters.did :as did]))
 
 (deftest resolves-did-document-into-identity-subject

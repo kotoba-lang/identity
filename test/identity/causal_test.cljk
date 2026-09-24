@@ -1,5 +1,5 @@
 (ns identity.causal-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.adapters.ledger :as ledger]
             [identity.causal :as causal]))
 

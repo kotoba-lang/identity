@@ -1,5 +1,5 @@
 (ns identity.startup-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [identity.startup :as startup]))
 
 (def ^:private dev "did:key:zDevice")

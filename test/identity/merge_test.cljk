@@ -1,5 +1,5 @@
 (ns identity.merge-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [identity.merge :as merge]
             [identity.model :as m]))
 
