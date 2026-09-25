@@ -1,5 +1,5 @@
 (ns identity.adapters.evm-test
-  (:require [kotoba.bytes :as kbytes] [json.data-json :as json]
+  (:require [kotoba.lang.error :as kerror] [kotoba.bytes :as kbytes] [json.data-json :as json]
             [kotoba.test :refer [deftest is testing]]
             [identity.adapters.eas :as eas]
             [identity.adapters.evm :as evm]
@@ -86,7 +86,7 @@
                                           :error {:code -32601}})}))))))
 
 (defn- problem [f]
-  (try (f) nil (catch clojure.lang.ExceptionInfo e
+  (try (f) nil (catch kerror/ExceptionInfo e
                  (:identity.evm/problem (ex-data e)))))
 
 (deftest decodes-eas-and-current-human-passport-payload

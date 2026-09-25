@@ -1,6 +1,6 @@
 (ns identity.live.human-passport
   "Read-only Optimism proof for the official Human Passport EAS schema."
-  (:require [identity.adapters.eas :as eas]
+  (:require [kotoba.lang.error :as kerror] [identity.adapters.eas :as eas]
             [identity.adapters.evm :as evm]
             [identity.adapters.human-passport :as passport]
             [identity.trust-policy :as trust-policy]
@@ -46,7 +46,7 @@
             :issued-at (:issued-at policy)
             :subject-id subject-id})
           :accepted
-          (catch clojure.lang.ExceptionInfo e
+          (catch kerror/ExceptionInfo e
             (or (:identity.eas/problem (ex-data e))
                 (:identity.human-passport/problem (ex-data e)))))]
     (when-not (= (if requested-uid :accepted :attestation/expired) lifecycle)

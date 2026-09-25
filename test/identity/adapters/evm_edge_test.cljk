@@ -1,5 +1,5 @@
 (ns identity.adapters.evm-edge-test
-  (:require [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing]]
             [identity.adapters.evm-edge :as edge]))
 
 (defn- word [n] (format "%064x" (biginteger n)))
@@ -42,7 +42,7 @@
            (try
              (edge/decode-eas-schema-result (str "0x" (word 4096)))
              nil
-             (catch clojure.lang.ExceptionInfo e
+             (catch kerror/ExceptionInfo e
                (:identity.evm-edge/problem (ex-data e))))))))
 
 (deftest decodes-edge-erc8004-results

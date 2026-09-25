@@ -1,5 +1,5 @@
 (ns identity.adapters.vc-test
-  (:require [kotoba.test :refer [deftest is]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.test :refer [deftest is]]
             [identity.adapters.vc :as vc]))
 
 (deftest binds-verifiable-credential-into-evidence-and-attestation
@@ -22,5 +22,5 @@
 
 (deftest rejects-unverified-credential
   (let [verifier (vc/static-verifier {})]
-    (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs ExceptionInfo)
+    (is (thrown? kerror/ExceptionInfo
                  (vc/bind-credential! verifier "kagi://vc/missing")))))
