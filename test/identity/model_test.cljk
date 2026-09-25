@@ -1,5 +1,5 @@
 (ns identity.model-test
-  (:require [kotoba.test :refer [deftest is]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.test :refer [deftest is]]
             [identity.datom :as d]
             [identity.model :as m]
             [identity.validate :as v]))
@@ -11,7 +11,7 @@
 
 (deftest rejects-adjudicating-and-incomplete-records
   (is (not (v/valid? (m/evidence-ref "e1" :screening {:non-adjudicating false}))))
-  (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs ExceptionInfo)
+  (is (thrown? kerror/ExceptionInfo
                (v/valid! (m/attestation nil "did:web:example.com:alice" :verified {})))))
 
 (deftest emits-attestation-datoms

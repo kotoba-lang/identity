@@ -4,11 +4,10 @@
   The portable EAS policy remains in identity.adapters.eas. This namespace
   only supplies bounded JSON-RPC transport and strict ABI decoding for hosts
   such as Cloudflare Workers."
-  (:require [kotoba.lang.text :as str]
+  (:require [kotoba.bytes :as kbytes] [kotoba.lang.text :as str]
             [identity.adapters.eas :as eas]
             [identity.adapters.erc8004 :as erc8004])
-  #?(:clj (:import (java.math BigInteger)
-                   (java.nio.charset StandardCharsets))))
+  #?(:clj (:import (java.math BigInteger))))
 
 (def ^:private get-attestation-selector "a3112a64")
 (def ^:private get-schema-selector "a2ea7c6e")
@@ -95,10 +94,9 @@
 (defn- utf8-at [hex offset label]
   (let [raw (bytes-at hex offset label)]
     #?(:clj
-       (String. (byte-array
+       (kbytes/utf8-string (byte-array
                  (map #(unchecked-byte (Integer/parseInt (apply str %) 16))
-                      (partition 2 raw)))
-                StandardCharsets/UTF_8)
+                      (partition 2 raw))))
        :cljs
        (let [bytes (js/Uint8Array.
                     (clj->js (mapv #(js/parseInt (apply str %) 16)

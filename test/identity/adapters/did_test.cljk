@@ -1,5 +1,5 @@
 (ns identity.adapters.did-test
-  (:require [kotoba.test :refer [deftest is]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.test :refer [deftest is]]
             [identity.adapters.did :as did]))
 
 (deftest resolves-did-document-into-identity-subject
@@ -19,5 +19,5 @@
 
 (deftest rejects-unresolved-did
   (let [resolver (did/static-resolver {})]
-    (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs ExceptionInfo)
+    (is (thrown? kerror/ExceptionInfo
                  (did/resolve-subject! resolver "did:web:example.com:missing")))))
