@@ -42,6 +42,22 @@ non-expiring score attestations after 90 days. The result is a scoped
 `[:identity :sybil-resistance]` claim and Sekisho evidence—not a general Kotoba
 trust score and not KYC.
 
+`identity.passport` is Kotoba's own answer to the same question, with no
+single attester to trust (ADR-2610072000 in com-junkawasaki/root). Stamps are
+signed claims in four classes (one allowlisted issuer, a k-of-n ceremony
+quorum, a vouch from someone whose passport passes, or a Bitcoin / Ethereum /
+Base / Filecoin fact the host re-derives). Each carries a nullifier, and
+first-claim-wins over a ledger every witness applies with `registry-apply` is
+the dedup: one credential backs one human, and vouch budgets are ledger rules.
+A content-addressed policy fixes weights, class caps (vouches and chain facts
+alone can never reach the threshold; `policy-problems` refuses a policy where
+they could) and the threshold, so anyone can recompute `score`. A majority of
+the policy's witnesses signs the resulting record, and `->identity` emits the
+same scoped `[:identity :sybil-resistance]` claim and Sekisho evidence as the
+Human Passport adapter. Pure: the host supplies Ed25519 verification,
+SHA-256 and chain reads. Gitcoin's EAS score can still count, as one chain
+stamp among others.
+
 `identity.adapters.erc8004` models the current draft's separate Identity,
 Reputation, and Validation registries. Registration creates an `:agent`
 subject. Reputation and validation create scoped trust claims only from

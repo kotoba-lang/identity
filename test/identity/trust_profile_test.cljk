@@ -54,7 +54,7 @@
 (deftest evidence-authority-publishes-the-bounded-eas-action
   (is (= "evidence.ingest"
          (get-in example [:policy :ethereumAttestationService :action])))
-  (is (= "urn:sha256:69f422026ab1efb38c7848a1e1bc5a0b2c52a4de6ecd774eef7b96cc0af6a6c1"
+  (is (= "urn:sha256:e8f9e138dc12d27858d28939fbfc8e565ce9dddf7fc7a102551c567533fb4eb1"
          (get-in example [:policy :ethereumAttestationService :id])))
   (is (= "/xrpc/ai.gftd.apps.kotobase.evidence.ingest"
          (get-in example [:policy :ethereumAttestationService :verificationEndpoint])))

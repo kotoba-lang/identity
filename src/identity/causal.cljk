@@ -10,7 +10,10 @@
 (def link-statuses #{:active :revoked :superseded})
 (def claim-statuses #{:active :revoked :superseded})
 (def obligation-statuses #{:open :fulfilled :released})
-(def evaluator-kinds #{:llm :agent :institution :human :hybrid})
+(def evaluator-kinds
+  "`:witness-quorum`: a claim certified by k of n witness keys a policy names
+  (identity.passport), where no single party is the evaluator."
+  #{:llm :agent :institution :human :hybrid :witness-quorum})
 
 (defn- non-empty-string? [x]
   (and (string? x) (not-empty x)))
