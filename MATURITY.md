@@ -23,6 +23,11 @@ Implemented:
 - Human Passport current-schema normalization into a 90-day scoped
   Sybil-resistance claim and Sekisho evidence, without importing its score as a
   general trust score.
+- Kotoba Passport (`identity.passport`): four stamp classes, nullifier
+  ledger rule with first-claim-wins dedup, revocation and vouch budgets,
+  policy-pinned scoring with class caps, majority witness certificates, and
+  identity-model output. Tested with real Ed25519/SHA-256 (node:crypto) under
+  kbb; no issuer, witness set, or ledger deployment exists yet.
 - Current draft ERC-8004 three-registry registration, reputation, and
   validation normalization with mandatory client/validator allowlists.
 - Atomic persistence of externally verified trust bundles.
