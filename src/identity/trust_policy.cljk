@@ -25,19 +25,19 @@
    :grants-capability? false})
 
 (def kotobase-eas-policy
-  {:id "urn:sha256:69f422026ab1efb38c7848a1e1bc5a0b2c52a4de6ecd774eef7b96cc0af6a6c1"
+  {:id "urn:sha256:e8f9e138dc12d27858d28939fbfc8e565ce9dddf7fc7a102551c567533fb4eb1"
    :version policy-version
    :service-origin "https://kotobase.net"
    :action "evidence.ingest"
    :source :ethereum-attestation-service
    :status :active
    :subject-binding :authenticated-tenant-evidence-record
-   :chain-id 10
+   :chain-id 8453
    :eas-address "0x4200000000000000000000000000000000000021"
-   :schema-uid "0xda0257756063c891659fed52fd36ef7557f7b45d66f59645fd3c3b263b747254"
-   :allowed-attesters ["0x843829986e895facd330486a61Ebee9E1f1adB1a"]
+   :schema-uid "0x1f3dce6501d8aad23563c0cf4f0c32264aed9311cb050056ebf72774f89ba912"
+   :allowed-attesters ["0xCc90105D4A2aa067ee768120AdA19886021dF422"]
    :maximum-age-seconds (* 90 24 60 60)
-   :issued-at "2026-08-28T00:00:00Z"
+   :issued-at "2026-10-07T00:00:00Z"
    :verification-endpoint "/xrpc/ai.gftd.apps.kotobase.evidence.ingest"
    :idempotency :sha256-keyed-strong-transaction
    :effect :evidence-only
