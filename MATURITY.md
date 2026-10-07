@@ -28,7 +28,7 @@ Implemented:
 - Atomic persistence of externally verified trust bundles.
 - Reference JVM JSON-RPC/ABI host for read-only EAS and Human Passport reads,
   with HTTPS RPC pinning, chain-ID verification, bounded responses, strict ABI
-  bounds checks, and both expired-refusal and fresh-positive Optimism live
+  bounds checks, and both expired-refusal and fresh-positive Base live
   proofs against the official schema and exact Itonami policy.
 - Coordinate-driven JVM ERC-8004 reader for Identity, Reputation, and Validation
   registry calls plus bounded HTTPS, IPFS-gateway, and base64 data registration
