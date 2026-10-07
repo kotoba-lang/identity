@@ -3,7 +3,9 @@
  :decision "adr-2609111500-cljk-rename-all-clojure-source (com-junkawasaki/root 90-docs/adr; owner instruction 2026-09-11)"
  :rule "value = the extension the file had before the rename. A path ending in .clj.cljk or .cljs.cljk kept it in the name because both platform files existed (or the plain target was taken)."
  :origins
- {"src/identity/adapters/datomic_kotoba.cljk" ".cljc"
+ {"src/identity/authority.cljk" ".cljc"
+  "test/identity/authority_test.cljk" ".cljc"
+  "src/identity/adapters/datomic_kotoba.cljk" ".cljc"
   "src/identity/adapters/did.cljk" ".cljc"
   "src/identity/adapters/eas.cljk" ".cljc"
   "src/identity/adapters/edn_ledger.cljk" ".clj"
